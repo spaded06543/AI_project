@@ -6,8 +6,8 @@ BLOCK = 90
 screen_size = width, height = 720, 720
 screen = pygame.display.set_mode(screen_size)
 print(screen)
-_running = True
 
+# class for pure image (background, messages, etc.)
 class PureImage:
     def __init__(self, file, scale = None):
         self.image = pygame.image.load(file).convert_alpha()
@@ -19,6 +19,7 @@ class PureImage:
         self.rect = self.image.get_rect()
         self.rect.move_ip(pixel[0], pixel[1])
 
+# class for a stone, inherit from Sprite class in pygame
 class Stone(pygame.sprite.Sprite):
     def __init__(self, file, pos, team, scale = None):
         pygame.sprite.Sprite.__init__(self)
@@ -75,7 +76,7 @@ def layered_draw(sprites):
         screen.blit(top_stone.image, top_stone.rect)
 
 # checking if move is legal, return a tuple (int, Stone)
-# int   : 1 if move legal, 0 if illegal, -1 if move to origin
+# int   : 1 if move legal, 0 if illegal, -1 if move to origin(no move at all)
 # Stone : stone eaten in this move, None if no stone eaten
 def check_legal(held, pos, all_stone):
     origin = held.cord
@@ -105,7 +106,8 @@ def check_legal(held, pos, all_stone):
     else:
         return 0, None
 
-# load all images and make objects
+# load images and make objects
+# team1, team2 are both Group class in pygame
 bg = PureImage("map1.jpg", scale = screen_size)
 msg = PureImage("message.png")
 msg.move_to_pixel([0, -BLOCK/2])
@@ -120,15 +122,17 @@ for i in range(12):
     s = Stone("stone2.png", pos, 2, scale = (BLOCK, BLOCK))
     team2.add(s)
 
-# main loop
+# set some flags, entering game loop
 stone_selected = False
 player_turn = 1
 msg_display_frame = 0
+_running = True
 while _running:
     # check event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             _running = False
+        # if a stone is selected, this stone will follow the cursor
         elif event.type == pygame.MOUSEMOTION and stone_selected:
             for stone in team1.sprites() + team2.sprites():
                 if stone.selected:
@@ -136,6 +140,8 @@ while _running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             can_place = True
             selected_sprite = None
+            # test which stone mouse click on, store in selected_sprite
+            # decide the action to be taken ()
             for stone in team1.sprites() + team2.sprites():
                 if not stone_selected:
                     if stone.rect.collidepoint(event.pos):
@@ -147,7 +153,8 @@ while _running:
                         selected_sprite = stone
                     elif stone.rect.collidepoint(event.pos):
                         can_place = False
-            if selected_sprite and stone_selected: # mouse is holding a stone
+            # mouse is holding a stone => place the stone(or not)
+            if selected_sprite and stone_selected:
                 if can_place:
                     pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
                     legal_move, eaten_stone = check_legal(selected_sprite, pos, team1.sprites() + team2.sprites())
@@ -164,10 +171,12 @@ while _running:
                     else:
                         msg.move_to_pixel([(width-240)/2, (height-40)/2])
                         msg_display_frame = 20
+                # display message for 20 frames if cannot place stone here
                 else:
                     msg.move_to_pixel([(width-240)/2, (height-40)/2])
                     msg_display_frame = 20
-            elif selected_sprite and not stone_selected: # mouse select a stone
+            # mouse is not holding anything => take the stone
+            elif selected_sprite and not stone_selected:
                 selected_sprite.selected = True
                 stone_selected = True
         else:
@@ -176,7 +185,7 @@ while _running:
     screen.blit(bg.image, bg.rect)
     layered_draw(team1.sprites()+team2.sprites())
     pygame.display.update()
-    # display other message
+    # display message(or not) acording to set frame number
     if msg_display_frame > 0:
         pygame.display.update()
         screen.blit(bg.image, bg.rect)
