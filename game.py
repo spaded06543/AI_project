@@ -141,13 +141,13 @@ while _running:
         if event.type == pygame.QUIT:
             _running = False
         elif event.type == pygame.MOUSEMOTION and stone_selected:
-            for stone in team1.sprites() + team2.sprites():
+            for stone in team1.sprites()+team2.sprites()+corpses.sprites():
                 if stone.selected:
                     stone.move_to_pixel([event.pos[0]-BLOCK/2, event.pos[1]-BLOCK/2])
         elif event.type == pygame.MOUSEBUTTONDOWN:
             can_place = True
             selected_sprite = None
-            for stone in team1.sprites() + team2.sprites():
+            for stone in team1.sprites()+team2.sprites()+corpses.sprites():
                 if not stone_selected:
                     if stone.rect.collidepoint(event.pos):
                         if player_turn == stone.team:
