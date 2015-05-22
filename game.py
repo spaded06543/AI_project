@@ -1,6 +1,6 @@
 import sys, pygame
 
-# initialize pygame 
+# initialize pygame
 pygame.init()
 BLOCK = 90
 screen_size = width, height = 720, 720
@@ -32,6 +32,16 @@ class Stone(pygame.sprite.Sprite):
         self.team = team
         self.selected = False
         self.king = False
+        self.dead = False
+
+    def die(self, group):
+        self.image = pygame.image.load("corpse.png").convert_alpha()
+        if self.scale:
+            self.image = pygame.transform.smoothscale(self.image, self.scale)
+        self.kill()
+        group.add(self)
+        self.team = 0
+        self.dead = True
 
     def become_king(self):
         if self.team == 1:
@@ -109,6 +119,7 @@ def check_legal(held, pos, all_stone):
 bg = PureImage("map1.jpg", scale = screen_size)
 msg = PureImage("message.png")
 msg.move_to_pixel([0, -BLOCK/2])
+corpses = pygame.sprite.Group()
 team1 = pygame.sprite.Group()
 for i in range(12):
     pos = [ ((i%4)*2)if(i>3 and i<8)else((i%4)*2+1) , (0)if(i<4)else((1)if(i<8)else(2))]
@@ -150,7 +161,7 @@ while _running:
             if selected_sprite and stone_selected: # mouse is holding a stone
                 if can_place:
                     pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
-                    legal_move, eaten_stone = check_legal(selected_sprite, pos, team1.sprites() + team2.sprites())
+                    legal_move, eaten_stone = check_legal(selected_sprite, pos, team1.sprites()+team2.sprites()+corpses.sprites())
                     if legal_move:
                         selected_sprite.move_to([pos[0], pos[1]])
                         selected_sprite.selected = False
@@ -160,7 +171,10 @@ while _running:
                         if not legal_move == -1:
                             player_turn = (2)if(player_turn == 1)else(1)
                         if eaten_stone:
-                            eaten_stone.kill()
+                            if eaten_stone.dead:
+                                eaten_stone.kill()
+                            else:
+                                eaten_stone.die(corpses)
                     else:
                         msg.move_to_pixel([(width-240)/2, (height-40)/2])
                         msg_display_frame = 20
@@ -174,13 +188,13 @@ while _running:
             pass
     # draw screen and display
     screen.blit(bg.image, bg.rect)
-    layered_draw(team1.sprites()+team2.sprites())
+    layered_draw(team1.sprites()+team2.sprites()+corpses.sprites())
     pygame.display.update()
     # display other message
     if msg_display_frame > 0:
         pygame.display.update()
         screen.blit(bg.image, bg.rect)
-        layered_draw(team1.sprites()+team2.sprites())
+        layered_draw(team1.sprites()+team2.sprites()+corpses.sprites())
         screen.blit(msg.image, msg.rect)
         pygame.display.update()
         msg_display_frame = msg_display_frame - 1
