@@ -119,12 +119,12 @@ msg = PureImage("message.png")
 msg.move_to_pixel([0, -BLOCK/2])
 corpses = pygame.sprite.Group()
 team1 = pygame.sprite.Group()
-for i in range(2):
+for i in range(12):
     pos = [ ((i%4)*2)if(i>3 and i<8)else((i%4)*2+1) , (0)if(i<4)else((1)if(i<8)else(2))]
     s = Stone("stone1.png", pos, 1, scale = (BLOCK, BLOCK))
     team1.add(s)
 team2 = pygame.sprite.Group()
-for i in range(2):
+for i in range(12):
     pos = [ ((i%4)*2+1)if(i>3 and i<8)else((i%4)*2) , (5)if(i<4)else((6)if(i<8)else(7))]
     s = Stone("stone2.png", pos, 2, scale = (BLOCK, BLOCK))
     team2.add(s)
