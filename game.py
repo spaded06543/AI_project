@@ -6,7 +6,6 @@ BLOCK = 90
 screen_size = width, height = 720, 720
 screen = pygame.display.set_mode(screen_size)
 print(screen)
-_running = True
 
 class PureImage:
     def __init__(self, file, scale = None):
@@ -114,19 +113,18 @@ def check_legal(held, pos, all_stone):
         return 0, None
     else:
         return 0, None
-
 # load all images and make objects
 bg = PureImage("map1.jpg", scale = screen_size)
 msg = PureImage("message.png")
 msg.move_to_pixel([0, -BLOCK/2])
 corpses = pygame.sprite.Group()
 team1 = pygame.sprite.Group()
-for i in range(12):
+for i in range(2):
     pos = [ ((i%4)*2)if(i>3 and i<8)else((i%4)*2+1) , (0)if(i<4)else((1)if(i<8)else(2))]
     s = Stone("stone1.png", pos, 1, scale = (BLOCK, BLOCK))
     team1.add(s)
 team2 = pygame.sprite.Group()
-for i in range(12):
+for i in range(2):
     pos = [ ((i%4)*2+1)if(i>3 and i<8)else((i%4)*2) , (5)if(i<4)else((6)if(i<8)else(7))]
     s = Stone("stone2.png", pos, 2, scale = (BLOCK, BLOCK))
     team2.add(s)
@@ -135,6 +133,7 @@ for i in range(12):
 stone_selected = False
 player_turn = 1
 msg_display_frame = 0
+_running = True
 while _running:
     # check event
     for event in pygame.event.get():
@@ -186,6 +185,16 @@ while _running:
                 stone_selected = True
         else:
             pass
+    # check if any player wins
+    stones = team1.sprites() + team2.sprites()
+    same_team = True
+    for stone in stones:
+        if not stone.team == stones[0].team:
+            same_team = False
+            break
+    if same_team:
+        print("player",stones[0].team,"wins!")
+        _running = False
     # draw screen and display
     screen.blit(bg.image, bg.rect)
     layered_draw(team1.sprites()+team2.sprites()+corpses.sprites())
