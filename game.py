@@ -1,4 +1,4 @@
-import sys, pygame
+import os, sys, pygame
 
 # initialize pygame
 pygame.init()
@@ -9,7 +9,7 @@ print(screen)
 
 class PureImage:
     def __init__(self, file, scale = None):
-        self.image = pygame.image.load(file).convert_alpha()
+        self.image = pygame.image.load(os.path.join("Resources",file)).convert_alpha()
         if scale:
             self.image = pygame.transform.smoothscale(self.image, scale)
         self.rect = self.image.get_rect()
@@ -21,7 +21,7 @@ class PureImage:
 class Stone(pygame.sprite.Sprite):
     def __init__(self, file, pos, team, scale = None):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(file).convert_alpha()
+        self.image = pygame.image.load(os.path.join("Resources",file)).convert_alpha()
         if scale:
             self.image = pygame.transform.smoothscale(self.image, scale)
         self.scale = scale
@@ -34,7 +34,7 @@ class Stone(pygame.sprite.Sprite):
         self.dead = False
 
     def die(self, group):
-        self.image = pygame.image.load("corpse.png").convert_alpha()
+        self.image = pygame.image.load(os.path.join("Resources","corpse.png")).convert_alpha()
         if self.scale:
             self.image = pygame.transform.smoothscale(self.image, self.scale)
         self.kill()
@@ -44,11 +44,11 @@ class Stone(pygame.sprite.Sprite):
 
     def become_king(self):
         if self.team == 1:
-            self.image = pygame.image.load("king1.png").convert_alpha()
+            self.image = pygame.image.load(os.path.join("Resources","king1.png")).convert_alpha()
             if self.scale:
                 self.image = pygame.transform.smoothscale(self.image, self.scale)
         else:
-            self.image = pygame.image.load("king2.png").convert_alpha()
+            self.image = pygame.image.load(os.path.join("Resources","king2.png")).convert_alpha()
             if self.scale:
                 self.image = pygame.transform.smoothscale(self.image, self.scale)
         self.king = True
@@ -113,6 +113,9 @@ def check_legal(held, pos, all_stone):
         return 0, None
     else:
         return 0, None
+# function for AI, give game state        
+def get_state():
+    pass
 # load all images and make objects
 bg = PureImage("map1.jpg", scale = screen_size)
 msg = PureImage("message.png")
