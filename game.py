@@ -87,6 +87,9 @@ def layered_draw(sprites):
 # int   : 1 if move legal, 0 if illegal, -1 if move to origin
 # Stone : stone eaten in this move, None if no stone eaten
 def check_legal(held, pos, all_stone):
+    for stone in all_stone:
+        if not held == stone and stone.cord == pos:
+            return 0, None
     origin = held.cord
     team = held.team
     king = held.king
@@ -147,7 +150,6 @@ while _running:
                 if stone.selected:
                     stone.move_to_pixel([event.pos[0]-BLOCK/2, event.pos[1]-BLOCK/2])
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            can_place = True
             selected_sprite = None
             for stone in team1.sprites()+team2.sprites()+corpses.sprites():
                 if not stone_selected:
@@ -158,28 +160,22 @@ while _running:
                 else:
                     if stone.selected:
                         selected_sprite = stone
-                    elif stone.rect.collidepoint(event.pos):
-                        can_place = False
             if selected_sprite and stone_selected: # mouse is holding a stone
-                if can_place:
-                    pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
-                    legal_move, eaten_stone = check_legal(selected_sprite, pos, team1.sprites()+team2.sprites()+corpses.sprites())
-                    if legal_move:
-                        selected_sprite.move_to([pos[0], pos[1]])
-                        selected_sprite.selected = False
-                        stone_selected = False
-                        if selected_sprite.team == 1 and pos[1] == 7 or selected_sprite.team == 2 and pos[1] == 0:
-                            selected_sprite.become_king()
-                        if not legal_move == -1:
-                            player_turn = (2)if(player_turn == 1)else(1)
-                        if eaten_stone:
-                            if eaten_stone.dead:
-                                eaten_stone.kill()
-                            else:
-                                eaten_stone.die(corpses)
-                    else:
-                        msg.move_to_pixel([(width-240)/2, (height-40)/2])
-                        msg_display_frame = 20
+                pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
+                legal_move, eaten_stone = check_legal(selected_sprite, pos, team1.sprites()+team2.sprites()+corpses.sprites())
+                if legal_move:
+                    selected_sprite.move_to([pos[0], pos[1]])
+                    selected_sprite.selected = False
+                    stone_selected = False
+                    if selected_sprite.team == 1 and pos[1] == 7 or selected_sprite.team == 2 and pos[1] == 0:
+                        selected_sprite.become_king()
+                    if not legal_move == -1:
+                        player_turn = (2)if(player_turn == 1)else(1)
+                    if eaten_stone:
+                        if eaten_stone.dead:
+                            eaten_stone.kill()
+                        else:
+                            eaten_stone.die(corpses)
                 else:
                     msg.move_to_pixel([(width-240)/2, (height-40)/2])
                     msg_display_frame = 20
