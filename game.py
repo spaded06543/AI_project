@@ -1,3 +1,4 @@
+########## TODO : flying king, rewrite legal move checking(prettify) ###########
 import os, sys, pygame
 
 # initialize pygame
@@ -85,44 +86,80 @@ def layered_draw(sprites):
     if top_stone:
         screen.blit(top_stone.image, top_stone.rect)
 
+#############################
+######### ALL RULES #########
+#############################
+# check if pos has a stone already
+def occupied(held, pos, all_stone):
+    for stone in all_stone:
+        if not held == stone and stone.cord == pos:
+            return True
+    return False
+# a normal move
+def normal_move(origin, pos, team, king):
+    if king:
+        if (pos[0] == (origin[0] + 1)%8 or pos[0] == (origin[0] - 1)%8) and \
+            (pos[1] == origin[1] - 1 or pos[1] == origin[1] + 1):
+            return True
+        else:
+            return False
+    else:
+        if (pos[0] == (origin[0] + 1)%8 or pos[0] == (origin[0] - 1)%8) and \
+            pos[1] == origin[1] + ((1)if(team == 1)else(-1)):
+            return True
+        else:
+            return False
+# a eat move
+def eat_move(origin, pos, team, king, all_stone):
+    if king:
+        if (pos[0] == (origin[0] + 2)%8 or pos[0] == (origin[0] - 2)%8) and \
+            (pos[1] == origin[1] + 2 or pos[1] == origin[1] - 2):
+            for stone in all_stone:
+                if not stone.team == team:
+                    if stone.cord == [(origin[0]+1)%8, origin[1]+1] and pos == [(origin[0]+2)%8, origin[1]+2] or \
+                        stone.cord == [(origin[0]-1)%8, origin[1]+1] and pos == [(origin[0]-2)%8, origin[1]+2] or \
+                        stone.cord == [(origin[0]+1)%8, origin[1]-1] and pos == [(origin[0]+2)%8, origin[1]-2] or \
+                        stone.cord == [(origin[0]-1)%8, origin[1]-1] and pos == [(origin[0]-2)%8, origin[1]-2]:
+                        return stone
+        else:
+            return None
+    else:
+        if (pos[0] == (origin[0] + 2)%8 or pos[0] == (origin[0] - 2)%8) and \
+            pos[1] == origin[1] + ((2)if(team == 1)else(-2)):
+            for stone in all_stone:
+                if not stone.team == team:
+                    if team == 1 and \
+                        (stone.cord == [(origin[0]+1)%8, origin[1]+1] and pos == [(origin[0]+2)%8, origin[1]+2] or \
+                        stone.cord == [(origin[0]-1)%8, origin[1]+1] and pos == [(origin[0]-2)%8, origin[1]+2]) \
+                        or team == 2 and \
+                        (stone.cord == [(origin[0]+1)%8, origin[1]-1] and pos == [(origin[0]+2)%8, origin[1]-2] or \
+                        stone.cord == [(origin[0]-1)%8, origin[1]-1] and pos == [(origin[0]-2)%8, origin[1]-2]):
+                        return stone
+        else:
+            return None
 # checking if move is legal, return a tuple (int, Stone)
 # int   : 1 if move legal, 0 if illegal, -1 if move to origin(no move at all)
 # Stone : stone eaten in this move, None if no stone eaten
 def check_legal(held, pos, all_stone):
-    for stone in all_stone:
-        if not held == stone and stone.cord == pos:
-            return 0, None
     origin = held.cord
     team = held.team
     king = held.king
-    if (pos[0] == (origin[0] + 1)%8 or pos[0] == (origin[0] - 1)%8) and \
-        (pos[1] == origin[1] + ((1)if(team == 1)else(-1)) or \
-        (king and (pos[1] == origin[1] - ((1)if(team == 1)else(-1))))):
-        return 1, None
-    elif pos == origin:
+    eaten_stone = eat_move(origin, pos, team, king, all_stone)
+    if pos == origin:
         return -1, None
-    elif (pos[0] == (origin[0] + 2)%8 or pos[0] == (origin[0] - 2)%8) and \
-        (pos[1] == origin[1] + ((2)if(team == 1)else(-2)) or \
-        (king and (pos[1] == origin[1] - ((2)if(team == 1)else(-2))))):
-        for stone in all_stone:
-            if not stone.team == team:
-                if (stone.cord == [(origin[0]+1)%8, origin[1]+1] and pos == [(origin[0]+2)%8, origin[1]+2] or \
-                    stone.cord == [(origin[0]-1)%8, origin[1]+1] and pos == [(origin[0]-2)%8, origin[1]+2] or \
-                    stone.cord == [(origin[0]+1)%8, origin[1]-1] and pos == [(origin[0]+2)%8, origin[1]-2] or \
-                    stone.cord == [(origin[0]-1)%8, origin[1]-1] and pos == [(origin[0]-2)%8, origin[1]-2]) and king or \
-                   (stone.cord == [(origin[0]+1)%8, origin[1]+1] and pos == [(origin[0]+2)%8, origin[1]+2] or \
-                    stone.cord == [(origin[0]-1)%8, origin[1]+1] and pos == [(origin[0]-2)%8, origin[1]+2]) and team == 1 or \
-                   (stone.cord == [(origin[0]+1)%8, origin[1]-1] and pos == [(origin[0]+2)%8, origin[1]-2] or \
-                    stone.cord == [(origin[0]-1)%8, origin[1]-1] and pos == [(origin[0]-2)%8, origin[1]-2]) and team == 2:
-                    return 1, stone
+    elif occupied(held, pos, all_stone):
         return 0, None
+    elif normal_move(origin, pos, team, king):
+        return 1, None
+    elif eaten_stone:
+        return 1, eaten_stone
     else:
         return 0, None
 # function for AI, give game state        
 def get_state():
     pass
 # load images and make objects
-# team1, team2 are both Group class in pygame
+# team1, team2 , corpses are all Group class in pygame
 bg = PureImage("map1.jpg", scale = screen_size)
 msg = PureImage("message.png")
 msg.move_to_pixel([0, -BLOCK/2])
