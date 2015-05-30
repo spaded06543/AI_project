@@ -1,4 +1,4 @@
-########## TODO : flying king, rewrite legal move checking(prettify) ###########
+########## TODO : multiple captures(forced) ###########
 import os, sys, pygame
 
 # initialize pygame
@@ -32,6 +32,7 @@ class Stone(pygame.sprite.Sprite):
         self.rect.move_ip(pos[0] * BLOCK, pos[1] * BLOCK)
         self.cord = [pos[0], pos[1]]
         self.team = team
+        self.must_eat = False
         self.selected = False
         self.king = False
         self.dead = False
@@ -96,65 +97,145 @@ def occupied(held, pos, all_stone):
             return True
     return False
 # a normal move
-def normal_move(origin, pos, team, king):
+def normal_move(held, pos):
+    cord = held.cord
+    team = held.team
+    king = held.king
     if king:
-        if (pos[0] == (origin[0] + 1)%8 or pos[0] == (origin[0] - 1)%8) and \
-            (pos[1] == origin[1] - 1 or pos[1] == origin[1] + 1):
+        if (pos[0] == (cord[0] + 1)%8 or pos[0] == (cord[0] - 1)%8) and \
+           (pos[1] == cord[1] - 1 or pos[1] == cord[1] + 1):
+            held.move_to([pos[0], pos[1]])
             return True
         else:
             return False
     else:
-        if (pos[0] == (origin[0] + 1)%8 or pos[0] == (origin[0] - 1)%8) and \
-            pos[1] == origin[1] + ((1)if(team == 1)else(-1)):
+        if (pos[0] == (cord[0] + 1)%8 or pos[0] == (cord[0] - 1)%8) and \
+           pos[1] == cord[1] + ((1)if(team == 1)else(-1)):
+            held.move_to([pos[0], pos[1]])
             return True
         else:
             return False
-# a eat move
-def eat_move(origin, pos, team, king, all_stone):
+# if stone can eat more
+def can_eat_more(held, all_stone):
+    team = held.team
+    king = held.king
+    cord = held.cord
+    king_pos = [[(cord[0]+2)%8, cord[1]+2], [(cord[0]+2)%8, cord[1]-2],\
+                [(cord[0]-2)%8, cord[1]+2], [(cord[0]-2)%8, cord[1]-2]]
+    team1_pos = [[(cord[0]+2)%8, cord[1]+2], [(cord[0]-2)%8, cord[1]+2]]
+    team2_pos = [[(cord[0]+2)%8, cord[1]-2], [(cord[0]-2)%8, cord[1]-2]]
+    tmp = []
+    for pos in king_pos:
+        if not occupied(held, pos, all_stone) and \
+           not (pos[1] < 0 or pos[1] > 7):
+            tmp.append(pos)
+    king_pos = tmp
+    tmp = []
+    for pos in team1_pos:
+        if not occupied(held, pos, all_stone) and \
+           not (pos[1] < 0 or pos[1] > 7):
+            tmp.append(pos)
+    team1_pos = tmp
+    tmp = []
+    for pos in team2_pos:
+        if not occupied(held, pos, all_stone) and \
+           not (pos[1] < 0 or pos[1] > 7):
+            tmp.append(pos)
+    team2_pos = tmp
+
     if king:
-        if (pos[0] == (origin[0] + 2)%8 or pos[0] == (origin[0] - 2)%8) and \
-            (pos[1] == origin[1] + 2 or pos[1] == origin[1] - 2):
+        for pos in king_pos:
             for stone in all_stone:
                 if not stone.team == team:
-                    if stone.cord == [(origin[0]+1)%8, origin[1]+1] and pos == [(origin[0]+2)%8, origin[1]+2] or \
-                        stone.cord == [(origin[0]-1)%8, origin[1]+1] and pos == [(origin[0]-2)%8, origin[1]+2] or \
-                        stone.cord == [(origin[0]+1)%8, origin[1]-1] and pos == [(origin[0]+2)%8, origin[1]-2] or \
-                        stone.cord == [(origin[0]-1)%8, origin[1]-1] and pos == [(origin[0]-2)%8, origin[1]-2]:
-                        return stone
-        else:
-            return None
+                    if stone.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2] or \
+                       stone.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]-1] and pos == [(cord[0]-2)%8, cord[1]-2]:
+                        return True
+    elif team == 1:
+        for pos in team1_pos:
+            for stone in all_stone:
+                if not stone.team == team:
+                    if stone.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2]:
+                        print("team1 continue")
+                        return True
     else:
-        if (pos[0] == (origin[0] + 2)%8 or pos[0] == (origin[0] - 2)%8) and \
-            pos[1] == origin[1] + ((2)if(team == 1)else(-2)):
+        for pos in team2_pos:
+            for stone in all_stone:
+                if not stone.team == team:
+                    if stone.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]-1] and pos == [(cord[0]-2)%8, cord[1]-2]:
+                        print("team2 continue")
+                        return True
+    return False
+# a eat move
+def eat_move(held, pos, team1, team2, corpses):
+    cord = held.cord
+    team = held.team
+    king = held.king
+    all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
+    if king:
+        if (pos[0] == (cord[0] + 2)%8 or pos[0] == (cord[0] - 2)%8) and \
+            (pos[1] == cord[1] + 2 or pos[1] == cord[1] - 2):
+            for stone in all_stone:
+                if not stone.team == team:
+                    if stone.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2] or \
+                       stone.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]-1] and pos == [(cord[0]-2)%8, cord[1]-2]:
+                        held.move_to([pos[0], pos[1]])
+                        if stone.dead:
+                            stone.kill()
+                        else:
+                            stone.die(corpses)
+                        all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
+                        if can_eat_more(held, all_stone):
+                            held.must_eat = True
+                        else:
+                            held.must_eat = False
+                        return True
+        else:
+            return False
+    else:
+        if (pos[0] == (cord[0] + 2)%8 or pos[0] == (cord[0] - 2)%8) and \
+            pos[1] == cord[1] + ((2)if(team == 1)else(-2)):
             for stone in all_stone:
                 if not stone.team == team:
                     if team == 1 and \
-                        (stone.cord == [(origin[0]+1)%8, origin[1]+1] and pos == [(origin[0]+2)%8, origin[1]+2] or \
-                        stone.cord == [(origin[0]-1)%8, origin[1]+1] and pos == [(origin[0]-2)%8, origin[1]+2]) \
-                        or team == 2 and \
-                        (stone.cord == [(origin[0]+1)%8, origin[1]-1] and pos == [(origin[0]+2)%8, origin[1]-2] or \
-                        stone.cord == [(origin[0]-1)%8, origin[1]-1] and pos == [(origin[0]-2)%8, origin[1]-2]):
-                        return stone
+                       (stone.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2]) or \
+                       team == 2 and \
+                       (stone.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
+                       stone.cord == [(cord[0]-1)%8, cord[1]-1] and pos == [(cord[0]-2)%8, cord[1]-2]):
+                        held.move_to([pos[0], pos[1]])
+                        if stone.dead:
+                            stone.kill()
+                        else:
+                            stone.die(corpses)
+                        all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
+                        if can_eat_more(held, all_stone):
+                            held.must_eat = True
+                        else:
+                            held.must_eat = False
+                        return True
         else:
-            return None
-# checking if move is legal, return a tuple (int, Stone)
-# int   : 1 if move legal, 0 if illegal, -1 if move to origin(no move at all)
-# Stone : stone eaten in this move, None if no stone eaten
-def check_legal(held, pos, all_stone):
-    origin = held.cord
-    team = held.team
-    king = held.king
-    eaten_stone = eat_move(origin, pos, team, king, all_stone)
-    if pos == origin:
-        return -1, None
-    elif occupied(held, pos, all_stone):
-        return 0, None
-    elif normal_move(origin, pos, team, king):
-        return 1, None
-    elif eaten_stone:
-        return 1, eaten_stone
+            return False
+# checking if move is legal, return a int
+# return    : 1 if move legal, 0 if illegal, -1 if move to origin(no move at all)
+def move_if_legal(held, pos, team1, team2, corpses):
+    all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
+    if occupied(held, pos, all_stone):
+        return 0
+    elif not held.must_eat and pos == held.cord:
+        held.move_to([pos[0], pos[1]])
+        return -1
+    elif not held.must_eat and normal_move(held, pos):
+        return 1
+    elif eat_move(held, pos, team1, team2, corpses):
+        return 1
     else:
-        return 0, None
+        return 0
 # function for AI, give game state        
 def get_state():
     pass
@@ -178,6 +259,7 @@ for i in range(12):
 # set some flags, entering game loop
 stone_selected = False
 player_turn = 1
+#last_turn_eat = 0
 msg_display_frame = 0
 _running = True
 while _running:
@@ -206,20 +288,15 @@ while _running:
             # mouse is holding a stone => place the stone(or not)
             if selected_sprite and stone_selected:
                 pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
-                legal_move, eaten_stone = check_legal(selected_sprite, pos, team1.sprites()+team2.sprites()+corpses.sprites())
+                legal_move = move_if_legal(selected_sprite, pos, team1, team2, corpses)
                 if legal_move:
-                    selected_sprite.move_to([pos[0], pos[1]])
-                    selected_sprite.selected = False
-                    stone_selected = False
+                    if not selected_sprite.must_eat:
+                        selected_sprite.selected = False
+                        stone_selected = False
                     if selected_sprite.team == 1 and pos[1] == 7 or selected_sprite.team == 2 and pos[1] == 0:
                         selected_sprite.become_king()
-                    if not legal_move == -1:
+                    if not (legal_move == -1 or selected_sprite.must_eat):
                         player_turn = (2)if(player_turn == 1)else(1)
-                    if eaten_stone:
-                        if eaten_stone.dead:
-                            eaten_stone.kill()
-                        else:
-                            eaten_stone.die(corpses)
                 # display message for 20 frames if cannot place stone here
                 else:
                     msg.move_to_pixel([(width-240)/2, (height-40)/2])
