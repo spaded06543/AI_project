@@ -242,8 +242,10 @@ def get_state():
 # load images and make objects
 # team1, team2 , corpses are all Group class in pygame
 bg = PureImage("map1.jpg", scale = screen_size)
-msg = PureImage("message.png")
-msg.move_to_pixel([0, -BLOCK/2])
+msg1 = PureImage("message1.png")
+msg2 = PureImage("message2.png")
+msg1.move_to_pixel([0, -BLOCK/2])
+msg2.move_to_pixel([0, -BLOCK/2])
 corpses = pygame.sprite.Group()
 team1 = pygame.sprite.Group()
 for i in range(12):
@@ -259,9 +261,10 @@ for i in range(12):
 # set some flags, entering game loop
 stone_selected = False
 player_turn = 1
-#last_turn_eat = 0
 msg_display_frame = 0
 _running = True
+team1_must = []
+team2_must = []
 while _running:
     # check event
     for event in pygame.event.get():
@@ -275,7 +278,7 @@ while _running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             selected_sprite = None
             # test which stone mouse click on, store in selected_sprite
-            # decide the action to be taken ()
+            # decide the action to be taken
             for stone in team1.sprites()+team2.sprites()+corpses.sprites():
                 if not stone_selected:
                     if stone.rect.collidepoint(event.pos):
@@ -285,11 +288,31 @@ while _running:
                 else:
                     if stone.selected:
                         selected_sprite = stone
+            # check
+            if selected_sprite and selected_sprite.team == 1 and \
+               len(team1_must) and not selected_sprite in team1_must:
+                selected_sprite.selected = False
+                msg2.move_to_pixel([(width-240)/2, (height-40)/2])
+                msg_display_frame = 20
+            elif selected_sprite and selected_sprite.team == 2 and \
+               len(team2_must) and not selected_sprite in team2_must:
+                selected_sprite.selected = False
+                msg2.move_to_pixel([(width-240)/2, (height-40)/2])
+                msg_display_frame = 20
             # mouse is holding a stone => place the stone(or not)
-            if selected_sprite and stone_selected:
+            elif selected_sprite and stone_selected:
                 pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
                 legal_move = move_if_legal(selected_sprite, pos, team1, team2, corpses)
                 if legal_move:
+                    team1_must = []
+                    team2_must = []
+                    for stone in team1.sprites():
+                        if can_eat_more(stone, team1.sprites()+team2.sprites()+corpses.sprites()):
+                            team1_must.append(stone)
+                    for stone in team2.sprites():
+                        if can_eat_more(stone, team1.sprites()+team2.sprites()+corpses.sprites()):
+                            team2_must.append(stone)
+
                     if not selected_sprite.must_eat:
                         selected_sprite.selected = False
                         stone_selected = False
@@ -299,7 +322,7 @@ while _running:
                         player_turn = (2)if(player_turn == 1)else(1)
                 # display message for 20 frames if cannot place stone here
                 else:
-                    msg.move_to_pixel([(width-240)/2, (height-40)/2])
+                    msg1.move_to_pixel([(width-240)/2, (height-40)/2])
                     msg_display_frame = 20
             # mouse is not holding anything => take the stone
             elif selected_sprite and not stone_selected:
@@ -326,11 +349,13 @@ while _running:
         pygame.display.update()
         screen.blit(bg.image, bg.rect)
         layered_draw(team1.sprites()+team2.sprites()+corpses.sprites())
-        screen.blit(msg.image, msg.rect)
+        screen.blit(msg1.image, msg1.rect)
+        screen.blit(msg2.image, msg2.rect)
         pygame.display.update()
         msg_display_frame = msg_display_frame - 1
     else:
-        msg.move_to_pixel([0, -BLOCK/2])
+        msg1.move_to_pixel([0, -BLOCK/2])
+        msg2.move_to_pixel([0, -BLOCK/2])
     pygame.time.delay(30)
 
 pygame.quit()
