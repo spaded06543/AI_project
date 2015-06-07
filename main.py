@@ -118,17 +118,15 @@ while _running:
     # draw screen and display
     screen.blit(bg.image, bg.rect)
     draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
-    pygame.display.update()
     # display message(or not) acording to set frame number
     if msg_display_frame > 0:
-        pygame.display.update()
         screen.blit(bg.image, bg.rect)
         draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
         screen.blit(msg1.image, msg1.rect)
         screen.blit(msg2.image, msg2.rect)
-        pygame.display.update()
         msg_display_frame = msg_display_frame - 1
     else:
+    pygame.display.update()
         msg1.move_to_pixel([0, -BLOCK/2])
         msg2.move_to_pixel([0, -BLOCK/2])
     pygame.time.delay(30)
