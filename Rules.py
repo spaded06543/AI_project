@@ -144,6 +144,3 @@ def move_if_legal(held, pos, team1, team2, corpses):
         return 1
     else:
         return 0
-# function for AI, give game state        
-def get_state():
-    pass
