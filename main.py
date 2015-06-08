@@ -8,6 +8,46 @@ pygame.init()
 screen = pygame.display.set_mode(screen_size)
 print(screen)
 
+<<<<<<< Updated upstream
+=======
+# function for drawing all sprites in a given list
+# Note that drawing top_stone last keep it on top layer
+def layered_draw(sprites):
+    top_stone = None
+    for sprite in sprites:
+        if sprite.selected == False:
+            screen.blit(sprite.image, sprite.rect)
+        else:
+            top_stone = sprite
+    if top_stone:
+        screen.blit(top_stone.image, top_stone.rect)
+
+def heuristic(all_stone,turn):
+    heuristic = 0
+    x = {1:2,2:1}
+    mapping = {0:7,1:6,2:5,3:4,4:3,5:2,6:1,7:0}
+    #print x[turn]
+    for stone in all_stone:
+        #print stone.team
+        if stone.team == x[turn]:
+            if stone.king == True:
+                heuristic += 7
+            else:
+                heuristic += stone.cord[1]
+            #print "player",stone.team," ",stone.cord[1]
+
+        elif stone.team == 0:
+            heuristic += 0
+        elif stone.team != x[turn]:
+            if stone.king == True:
+                heuristic -= 7
+            else:
+                heuristic -= mapping[stone.cord[1]]
+            #print "player",stone.team," ",mapping[stone.cord[1]]
+    return heuristic
+
+>>>>>>> Stashed changes
+
 # load images and make objects
 bg = PureImage("map1.jpg", scale = 90)
 #select_bg = PureImage("map1.jpg",scale)
@@ -34,7 +74,11 @@ msg_display_frame = 0
 _running = True
 team1_must = []
 team2_must = []
+flag = 0
 while _running:
+    if flag == 1:
+        print heuristic(stones,player_turn)
+    flag = 0
     # check event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -80,6 +124,7 @@ while _running:
                         selected_sprite.become_king()
                     if not (legal_move == -1 or selected_sprite.must_eat):
                         player_turn = (2)if(player_turn == 1)else(1)
+                        flag =1
                     team1_must = []
                     team2_must = []
                     for stone in team1.sprites():
