@@ -6,7 +6,10 @@ class PureImage:
     def __init__(self, file, scale = None):
         self.image = pygame.image.load(os.path.join("Resources",file)).convert_alpha()
         if scale:
-            self.image = pygame.transform.smoothscale(self.image, scale)
+            img_w = self.image.get_width()
+            img_h = self.image.get_height()
+            self.image = pygame.transform.smoothscale(self.image, (int(img_w*(scale/100)), int(img_h*(scale/100))))
+        self.scale = scale
         self.rect = self.image.get_rect()
 
     def move_to_pixel(self, pixel):
@@ -19,7 +22,9 @@ class Stone(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join("Resources",file)).convert_alpha()
         if scale:
-            self.image = pygame.transform.smoothscale(self.image, scale)
+            img_w = self.image.get_width()
+            img_h = self.image.get_height()
+            self.image = pygame.transform.smoothscale(self.image, (int(img_w*(scale/100)), int(img_h*(scale/100))))
         self.scale = scale
         self.rect = self.image.get_rect()
         self.rect.move_ip(pos[0] * BLOCK, pos[1] * BLOCK)
@@ -33,7 +38,9 @@ class Stone(pygame.sprite.Sprite):
     def die(self, group):
         self.image = pygame.image.load(os.path.join("Resources","corpse.png")).convert_alpha()
         if self.scale:
-            self.image = pygame.transform.smoothscale(self.image, self.scale)
+            img_w = self.image.get_width()
+            img_h = self.image.get_height()
+            self.image = pygame.transform.smoothscale(self.image, (int(img_w*(self.scale/100)), int(img_h*(self.scale/100))))
         self.kill()
         group.add(self)
         self.team = 0
@@ -43,11 +50,15 @@ class Stone(pygame.sprite.Sprite):
         if self.team == 1:
             self.image = pygame.image.load(os.path.join("Resources","king1.png")).convert_alpha()
             if self.scale:
-                self.image = pygame.transform.smoothscale(self.image, self.scale)
+                img_w = self.image.get_width()
+                img_h = self.image.get_height()
+                self.image = pygame.transform.smoothscale(self.image, (int(img_w*(self.scale/100)), int(img_h*(self.scale/100))))
         else:
             self.image = pygame.image.load(os.path.join("Resources","king2.png")).convert_alpha()
             if self.scale:
-                self.image = pygame.transform.smoothscale(self.image, self.scale)
+                img_w = self.image.get_width()
+                img_h = self.image.get_height()
+                self.image = pygame.transform.smoothscale(self.image, (int(img_w*(self.scale/100)), int(img_h*(self.scale/100))))
         self.king = True
 
     def move(self, shift):

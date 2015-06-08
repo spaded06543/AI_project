@@ -9,7 +9,8 @@ screen = pygame.display.set_mode(screen_size)
 print(screen)
 
 # load images and make objects
-bg = PureImage("map1.jpg", scale = screen_size)
+bg = PureImage("map1.jpg", scale = 90)
+#select_bg = PureImage("map1.jpg",scale)
 msg1 = PureImage("message1.png")
 msg2 = PureImage("message2.png")
 msg1.move_to_pixel([0, -BLOCK/2])
@@ -18,12 +19,12 @@ corpses = pygame.sprite.Group()
 team1 = pygame.sprite.Group()
 for i in range(12):
     pos = [ ((i%4)*2)if(i>3 and i<8)else((i%4)*2+1) , (0)if(i<4)else((1)if(i<8)else(2))]
-    s = Stone("stone1.png", pos, 1, scale = (BLOCK, BLOCK))
+    s = Stone("stone1.png", pos, 1, scale = 90)
     team1.add(s)
 team2 = pygame.sprite.Group()
 for i in range(12):
     pos = [ ((i%4)*2+1)if(i>3 and i<8)else((i%4)*2) , (5)if(i<4)else((6)if(i<8)else(7))]
-    s = Stone("stone2.png", pos, 2, scale = (BLOCK, BLOCK))
+    s = Stone("stone2.png", pos, 2, scale = 90)
     team2.add(s)
 
 # set flags, entering game loop
@@ -118,19 +119,17 @@ while _running:
     # draw screen and display
     screen.blit(bg.image, bg.rect)
     draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
-    pygame.display.update()
     # display message(or not) acording to set frame number
     if msg_display_frame > 0:
-        pygame.display.update()
         screen.blit(bg.image, bg.rect)
         draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
         screen.blit(msg1.image, msg1.rect)
         screen.blit(msg2.image, msg2.rect)
-        pygame.display.update()
         msg_display_frame = msg_display_frame - 1
     else:
         msg1.move_to_pixel([0, -BLOCK/2])
         msg2.move_to_pixel([0, -BLOCK/2])
+    pygame.display.update()
     pygame.time.delay(30)
 
 pygame.quit()
