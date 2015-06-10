@@ -8,8 +8,8 @@ pygame.init()
 screen = pygame.display.set_mode(screen_size)
 print(screen)
 
-<<<<<<< Updated upstream
-=======
+#<<<<<<< Updated upstream
+#=======
 # function for drawing all sprites in a given list
 # Note that drawing top_stone last keep it on top layer
 def layered_draw(sprites):
@@ -46,7 +46,7 @@ def heuristic(all_stone,turn):
             #print "player",stone.team," ",mapping[stone.cord[1]]
     return heuristic
 
->>>>>>> Stashed changes
+#>>>>>>> Stashed changes
 
 # load images and make objects
 bg = PureImage("map1.jpg", scale = 90)
@@ -77,7 +77,7 @@ team2_must = []
 flag = 0
 while _running:
     if flag == 1:
-        print heuristic(stones,player_turn)
+        print (heuristic(stones,player_turn))
     flag = 0
     # check event
     for event in pygame.event.get():
