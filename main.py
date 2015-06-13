@@ -44,10 +44,14 @@ msg_display_frame = 0
 _running = True
 team1_must = []
 team2_must = []
+flag = 0
 while _running:
     if gamemode == 0 and player_turn == 2:
         ai_action(team1, team2, corpses, team2_must)
         player_turn = 1
+    if flag == 1:
+        print (heuristic(stones,player_turn))
+        flag = 0
     # check event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -93,6 +97,7 @@ while _running:
                         selected_sprite.become_king()
                     if not (legal_move == -1 or selected_sprite.must_eat):
                         player_turn = (2)if(player_turn == 1)else(1)
+                        flag =1
                     team1_must = []
                     team2_must = []
                     for stone in team1.sprites():
