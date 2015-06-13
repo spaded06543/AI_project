@@ -2,6 +2,7 @@ import os, sys, pygame
 from GameClass import *
 from Rules import *
 from Functions import *
+from AI import *
 
 # initialize pygame
 pygame.init()
@@ -48,6 +49,7 @@ flag = 0
 while _running:
     if gamemode == 0 and player_turn == 2:
         ai_action(team1, team2, corpses, team2_must)
+        #if must continue: continue
         player_turn = 1
     if flag == 1:
         print (heuristic(stones,player_turn))
@@ -76,12 +78,12 @@ while _running:
                         selected_sprite = stone
             # check
             if selected_sprite and selected_sprite.info.team == 1 and \
-            team1_must and not selected_sprite in team1_must:
+               team1_must and not selected_sprite in team1_must:
                 selected_sprite.selected = False
                 msg2.move_to_pixel([(width-240*SCALE/100)/2, (height-40*SCALE/100)/2])
                 msg_display_frame = 20
             elif selected_sprite and selected_sprite.info.team == 2 and \
-            team2_must and not selected_sprite in team2_must:
+               team2_must and not selected_sprite in team2_must:
                 selected_sprite.selected = False
                 msg2.move_to_pixel([(width-240*SCALE/100)/2, (height-40*SCALE/100)/2])
                 msg_display_frame = 20
@@ -90,14 +92,15 @@ while _running:
                 pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
                 legal_move = move_if_legal(selected_sprite, pos, team1, team2, corpses)
                 if legal_move:
-                    if not selected_sprite.must_eat:
+                    if not selected_sprite.eating:
                         selected_sprite.selected = False
                         stone_selected = False
+                        selected_sprite.eating = False
                     if selected_sprite.info.team == 1 and pos[1] == 7 or selected_sprite.info.team == 2 and pos[1] == 0:
                         selected_sprite.become_king()
                     if not (legal_move == -1 or selected_sprite.must_eat):
                         player_turn = (2)if(player_turn == 1)else(1)
-                        flag =1
+                        flag = 1
                     team1_must = []
                     team2_must = []
                     for stone in team1.sprites():

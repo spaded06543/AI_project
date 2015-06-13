@@ -37,6 +37,7 @@ class Stone(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.move_ip(pos[0] * BLOCK, pos[1] * BLOCK)
         self.must_eat = False
+        self.eating = False
         self.selected = False
         self.dead = False
         self.info = Stone_light(pos, team)

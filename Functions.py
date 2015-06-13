@@ -70,13 +70,13 @@ def get_successors(stone, team1, team2, corpses):
             pos_list = []
             #set pos_list (all possible positions)
             for pos in pos_list:
-                if #stone can move to pos:
+                if False:#stone can move to pos:
                     successors.append(pos)
     elif team == 2:
         for stone in team2.sprites():
             pos_list = []
             #set pos_list (all possible positions)
             for pos in pos_list:
-                if #stone can move to pos:
+                if False:#stone can move to pos:
                     successors.append(pos)
     return successors
