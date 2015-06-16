@@ -1,6 +1,7 @@
 import os, sys, pygame
 BLOCK = 90
-screen_size = width, height = 720, 720
+screen_size = width, height = BLOCK*8, BLOCK*8
+
 # class for pure image (background, messages, etc.)
 class PureImage:
     def __init__(self, file, scale = None):
@@ -16,6 +17,13 @@ class PureImage:
         self.rect = self.image.get_rect()
         self.rect.move_ip(pixel[0], pixel[1])
 
+# class holds important info for stone
+class Stone_light:
+    def __init__(self, pos, team):
+        self.cord = pos 
+        self.team = team
+        self.king = False
+
 # class for a stone, inherit from Sprite class in pygame
 class Stone(pygame.sprite.Sprite):
     def __init__(self, file, pos, team, scale = None):
@@ -28,12 +36,11 @@ class Stone(pygame.sprite.Sprite):
         self.scale = scale
         self.rect = self.image.get_rect()
         self.rect.move_ip(pos[0] * BLOCK, pos[1] * BLOCK)
-        self.cord = [pos[0], pos[1]]
-        self.team = team
         self.must_eat = False
+        self.eating = False
         self.selected = False
-        self.king = False
         self.dead = False
+        self.info = Stone_light(pos, team)
 
     def die(self, group):
         self.image = pygame.image.load(os.path.join("Resources","corpse.png")).convert_alpha()
@@ -43,11 +50,11 @@ class Stone(pygame.sprite.Sprite):
             self.image = pygame.transform.smoothscale(self.image, (int(img_w*(self.scale/100)), int(img_h*(self.scale/100))))
         self.kill()
         group.add(self)
-        self.team = 0
+        self.info.team = 0
         self.dead = True
 
     def become_king(self):
-        if self.team == 1:
+        if self.info.team == 1:
             self.image = pygame.image.load(os.path.join("Resources","king1.png")).convert_alpha()
             if self.scale:
                 img_w = self.image.get_width()
@@ -59,21 +66,21 @@ class Stone(pygame.sprite.Sprite):
                 img_w = self.image.get_width()
                 img_h = self.image.get_height()
                 self.image = pygame.transform.smoothscale(self.image, (int(img_w*(self.scale/100)), int(img_h*(self.scale/100))))
-        self.king = True
+        self.info.king = True
 
     def move(self, shift):
         self.rect.move_ip(shift[0] * BLOCK, shift[1] * BLOCK)
-        self.cord = [self.cord[0] + shift[0], self.cord[1] + shift[1]]
+        self.info.cord = [self.info.cord[0] + shift[0], self.info.cord[1] + shift[1]]
         # edge check
         if self.rect.left < 0 or self.rect.right > width or self.rect.top < 0 or self.rect.bottom > height:
             self.rect.move_ip(-shift[0] * BLOCK, -shift[1] * BLOCK)
-            self.cord = [self.cord[0] - shift[0], self.cord[1] - shift[1]]
+            self.info.cord = [self.info.cord[0] - shift[0], self.info.cord[1] - shift[1]]
 
     def move_to(self, pos):
         self.rect = self.image.get_rect()
         self.rect.move_ip(pos[0] * BLOCK, pos[1] * BLOCK)
-        self.cord = [pos[0], pos[1]]
-        print(self.cord)
+        self.info.cord = [pos[0], pos[1]]
+        print(self.info.cord)
     
     def move_to_pixel(self, pixel):
         self.rect = self.image.get_rect()
