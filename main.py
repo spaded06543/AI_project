@@ -37,7 +37,6 @@ for i in range(12):
 # select game mode(AI or 2P)
 # gamemode 0 = AI; gamemode 1 = 2P
 gamemode = select_gamemode(select_window, button1, button2, screen, width, height, SCALE)
-
 # set flags, entering game loop
 stone_selected = False
 player_turn = 1
@@ -52,7 +51,8 @@ while _running:
         #if must continue: continue
         player_turn = 1
     if flag == 1:
-        print (heuristic(stones,player_turn))
+        stones = team1.sprites()+team2.sprites()+corpses.sprites()
+        print(heuristic(stones, player_turn))
         flag = 0
     # check event
     for event in pygame.event.get():
@@ -127,19 +127,13 @@ while _running:
                 stone_selected = True
         else:
             pass
-    # check if any player wins
-    stones = team1.sprites() + team2.sprites()
-    same_team = True
-    for stone in stones:
-        if not stone.info.team == stones[0].info.team:
-            same_team = False
-            break
-    if same_team:
-        print("player",stones[0].info.team,"wins!")
-        _running = False
+    # check if game over
+    _running = not gameover(team1.sprites() + team2.sprites())
+    
     # draw screen and display
     screen.blit(bg.image, bg.rect)
     draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
+    
     # display message(or not) acording to set frame number
     if msg_display_frame > 0:
         screen.blit(bg.image, bg.rect)

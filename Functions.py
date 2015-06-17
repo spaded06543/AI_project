@@ -1,3 +1,4 @@
+import copy
 import pygame
 from Rules import *
 
@@ -30,7 +31,7 @@ def select_gamemode(window, button1, button2, screen, width, height, SCALE):
                     game_mode = 0
                 elif button2.rect.collidepoint(event.pos):
                     game_mode = 1
-        if not game_mode == -1:
+        if game_mode != -1:
             break
     print(game_mode)
     return game_mode
@@ -59,24 +60,35 @@ def heuristic(all_stone,turn):
             #print "player",stone.team," ",mapping[stone.cord[1]]
     return heuristic
 
-# get possible moves
-def get_successors(stone, team1, team2, corpses):
-    cord = stone.info.cord
-    team = stone.info.team
-    king = stone.info.king
+# get all possible moves for team
+# return [stone, move]
+def get_successors(stones, team1, team2, corpses, must):
     successors = []
-    if team == 1:
-        for stone in team1.sprites():
-            pos_list = []
-            #set pos_list (all possible positions)
-            for pos in pos_list:
-                if False:#stone can move to pos:
-                    successors.append(pos)
-    elif team == 2:
-        for stone in team2.sprites():
-            pos_list = []
-            #set pos_list (all possible positions)
-            for pos in pos_list:
-                if False:#stone can move to pos:
-                    successors.append(pos)
+    eat_successors = []
+    eat_len = []
+    stone_pos_pair = []
+    shift = [[-1,-1],[-1,1],[1,-1],[1,1],[-2,-2],[-2,2],[2,-2],[2,2]]
+    if must:
+        for stone in stones:
+            stone_pos_pair.append([stone, [[stone.info.cord[0]+x[0], stone.info.cord[1]+x[1]] for x in shift[4:]]])
+    else:
+        for stone in stones:
+            stone_pos_pair.append([stone, [[stone.info.cord[0]+x[0], stone.info.cord[1]+x[1]] for x in shift]])
+
+    for [stone, pos_list] in stone_pos_pair:
+        for pos in pos_list:
+            if pos[1] < 0 or pos[1] > 7:
+                continue
+            pos[0] = pos[0]%8
+            tmp = can_move(stone, pos, team1, team2, corpses)
+            if tmp == 1:
+                successors.append([stone,pos])
+            elif tmp > 1:
+                eat_successors.append([stone,pos])
+                eat_len.append(tmp)
+    if len(eat_len) != 0:
+        max_len = max(eat_len)
+        for length, successor in zip(eat_len, eat_successors):
+            if length == max_len:
+                successors.append(successor)
     return successors

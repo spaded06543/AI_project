@@ -1,9 +1,35 @@
+import copy
+
+def gameover(all_stone):
+    over = True
+    for stone in all_stone:
+        if stone.info.team != all_stone[0].info.team:
+            over = False
+            break
+    if over:
+        print("player",all_stone[0].info.team,"wins!")
+    return over
 # check if pos has a stone already
 def occupied(pos, all_stone):
     for stone in all_stone:
         if stone.info.cord == pos:
             return True
     return False
+
+# return a list of position stone can move
+def normal_move2(stone, all_stone):
+    pos_list = []
+    if stone.info.king :
+        D = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
+    elif stone.info.team == 1 :
+        D = [[1, 1], [-1, 1]]
+    else :
+        D = [[1, -1], [-1, -1]]
+    for d in D :
+        next = [(stone.info.cord[0] + d[0])%8, stone.info.cord[1] + d[1]]
+        if not occupied(next, all_stone) and next[1] >= 0 and next[1] <= 7:
+            pos_list.append(next)
+    return pos_list
 
 # a normal move
 def normal_move(held, pos):
@@ -13,14 +39,12 @@ def normal_move(held, pos):
     if king:
         if (pos[0] == (cord[0] + 1)%8 or pos[0] == (cord[0] - 1)%8) and \
            (pos[1] == cord[1] - 1 or pos[1] == cord[1] + 1):
-            held.move_to([pos[0], pos[1]])
             return True
         else:
             return False
     else:
         if (pos[0] == (cord[0] + 1)%8 or pos[0] == (cord[0] - 1)%8) and \
            pos[1] == cord[1] + ((1)if(team == 1)else(-1)):
-            held.move_to([pos[0], pos[1]])
             return True
         else:
             return False
@@ -56,7 +80,7 @@ def can_eat_more(held, all_stone):
     if king:
         for pos in king_pos:
             for stone in all_stone:
-                if not stone.info.team == team:
+                if stone.info.team != team:
                     if stone.info.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
                        stone.info.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2] or \
                        stone.info.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
@@ -65,7 +89,7 @@ def can_eat_more(held, all_stone):
     elif team == 1:
         for pos in team1_pos:
             for stone in all_stone:
-                if not stone.info.team == team:
+                if stone.info.team != team:
                     if stone.info.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
                        stone.info.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2]:
                         print("team1 continue")
@@ -73,7 +97,7 @@ def can_eat_more(held, all_stone):
     else:
         for pos in team2_pos:
             for stone in all_stone:
-                if not stone.info.team == team:
+                if stone.info.team != team:
                     if stone.info.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
                        stone.info.cord == [(cord[0]-1)%8, cord[1]-1] and pos == [(cord[0]-2)%8, cord[1]-2]:
                         print("team2 continue")
@@ -81,6 +105,7 @@ def can_eat_more(held, all_stone):
     return False
 
 # a eat move
+
 def eat_move(held, pos, team1, team2, corpses):
     cord = held.info.cord
     team = held.info.team
@@ -90,7 +115,7 @@ def eat_move(held, pos, team1, team2, corpses):
         if (pos[0] == (cord[0] + 2)%8 or pos[0] == (cord[0] - 2)%8) and \
             (pos[1] == cord[1] + 2 or pos[1] == cord[1] - 2):
             for stone in all_stone:
-                if not stone.info.team == team:
+                if stone.info.team != team:
                     if stone.info.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
                        stone.info.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2] or \
                        stone.info.cord == [(cord[0]+1)%8, cord[1]-1] and pos == [(cord[0]+2)%8, cord[1]-2] or \
@@ -114,7 +139,7 @@ def eat_move(held, pos, team1, team2, corpses):
         if (pos[0] == (cord[0] + 2)%8 or pos[0] == (cord[0] - 2)%8) and \
             pos[1] == cord[1] + ((2)if(team == 1)else(-2)):
             for stone in all_stone:
-                if not stone.info.team == team:
+                if stone.info.team != team:
                     if team == 1 and \
                        (stone.info.cord == [(cord[0]+1)%8, cord[1]+1] and pos == [(cord[0]+2)%8, cord[1]+2] or \
                        stone.info.cord == [(cord[0]-1)%8, cord[1]+1] and pos == [(cord[0]-2)%8, cord[1]+2]) or \
@@ -137,7 +162,83 @@ def eat_move(held, pos, team1, team2, corpses):
         else:
             return False
 
-# checking if move is legal, return a int
+# return a max eat path of main_stone
+def max_eat(main_stone, team1, team2, corpses):
+    l = 0
+    tmp_path = [];
+    t1_p = [x.info.cord for x in team1.sprites()]
+    t2_p = [x.info.cord for x in team2.sprites()]
+    cp_p = [x.info.cord for x in corpses.sprites()]
+    total_p = [cp_p, t1_p, t2_p]
+    total_p[main_stone.info.team].remove(main_stone.info.cord)
+    stack = [(main_stone.info.cord, [], total_p)]
+    #stack = [(main_stone.info.cord, [], team1, team2, corpses)];
+    #print("=======MAX_EAT : {0}=======".format(main_stone.info.cord))
+    D = None
+    if main_stone.info.king :
+        D = [[2, 2], [2, -2], [-2, 2], [-2, -2]] #direction
+    elif main_stone.info.team == 1 :
+        D = [[2, 2], [-2, 2]]
+    else :
+        D = [[2, -2], [-2, -2]]
+    a = None
+    while(len(stack) > 0):
+        a = stack.pop()
+        #print("get :{0}".format(a[0]))
+        for d in D:
+            next_step = [(d[0] + a[0][0]) % 8, d[1] + a[0][1]]
+            #print("try go {0}".format(next_step))
+            #t1, t2, cp = copy.deepcopy(a[2]), copy.deepcopy(a[3]), copy.deepcopy(a[4])
+            t1, t2, cp = copy.deepcopy(a[2][1]), copy.deepcopy(a[2][2]), copy.deepcopy(a[2][0])
+            stones = t1 + t2 + cp
+            if next_step not in stones and next_step[1] >= 0 and next_step[1] <= 7:
+                #print("\t next_step OK.")
+                eaten= [(int(d[0]/2) + a[0][0]) % 8, int(d[1] / 2) + a[0][1]]
+                #eaten = get_stone(cross, stones)
+                #print("eat ?{0}".format(eaten))
+                if eaten in stones and eaten not in a[2][main_stone.info.team] :
+                    #print("\t~eat ok~")
+                    if eaten in t1:
+                        t1.remove(eaten)
+                        cp.append(eaten)
+                    elif eaten in t2:
+                        t2.remove(eaten)
+                        cp.append(eaten)
+                    else:
+                        cp.remove(eaten)
+                    #print("corpses : {0}".format(cp))
+                    tmp_path.append(a[1] + [next_step])
+                    l = max(l, len(a[1]) + 1)
+                    stack.append((next_step, a[1] + [next_step], [cp,t1,t2]))
+    #print(len(tmp_path))
+    if len(tmp_path) == 0 :
+        return []
+    tmp_path = sorted(tmp_path, key = lambda x : -len(x))
+    path = []
+    for i in range(0, len(tmp_path)):
+        #print("len path {0} : {1}".format(i, len(tmp_path[i])))
+        if len(tmp_path[i]) == l :
+            path.append(tmp_path[i])
+        else :
+            break
+    return path
+
+# check if move is legal
+def can_move(stone, pos, team1, team2, corpses):
+    all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
+    normal_list = normal_move2(stone, all_stone)
+    max_path = max_eat(stone, team1, team2, corpses)
+    first_eat = [x[0] for x in max_path]
+    if occupied(pos, all_stone):
+        return 0
+    elif not stone.must_eat and pos in normal_list:
+        return 1
+    elif pos in first_eat:
+        return len(max_path[0])+1
+    else:
+        return 0
+
+# check if move is legal(move if legal), return a int
 # return    : 1 if move legal, 0 if illegal, -1 if move to origin(no move at all)
 def move_if_legal(held, pos, team1, team2, corpses):
     all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
@@ -147,6 +248,7 @@ def move_if_legal(held, pos, team1, team2, corpses):
     elif occupied(pos, all_stone):
         return 0
     elif not held.must_eat and normal_move(held, pos):
+        held.move_to([pos[0], pos[1]])
         return 1
     elif eat_move(held, pos, team1, team2, corpses):
         return 1
