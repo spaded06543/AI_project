@@ -20,7 +20,7 @@ def occupied(pos, all_stone):
         if stone.info.cord == pos:
             return True
     return False
-def get_stone(pos, all_stone)
+def get_stone(pos, all_stone):
     for stone in all_stone:
         if stone.info.cord == pos:
             return stone
@@ -233,17 +233,21 @@ def max_eat(main_stone, team1, team2, corpses):
     return path
 
 # check if move is legal
-def can_move(stone, pos, team1, team2, corpses):
-    all_stone = team1.sprites() + team2.sprites() + corpses.sprites()
-    normal_list = normal_move2(stone, all_stone)
-    max_path = max_eat(stone, team1, team2, corpses)
-    first_eat = [x[0] for x in max_path]
-    if occupied(pos, all_stone):
+# return [num, path], path is [] if move illegal
+# num is 1 if normal move, pathlen+1 if eat move
+def can_move_normal(stone_info, pos, team1_info, team2_info, corpses_info):
+    all_info = team1_info + team2_info + corpses_info
+    normal_list = normal_move2(stone_info, all_info)
+    occupied = False
+    
+    for info in all_info:
+        if info.cord == pos:
+            occupied = True
+
+    if occupied:
         return 0
-    elif not stone.must_eat and pos in normal_list:
+    elif pos in normal_list:
         return 1
-    elif pos in first_eat:
-        return len(max_path[0])+1
     else:
         return 0
 

@@ -41,8 +41,6 @@ def heuristic(all_stone, turn):
     x = {1:2, 2:1}
     mapping = {0:7, 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:0}
     #print x[turn]
-    if gameover(all_stone):
-        
     for stone in all_stone:
         #print stone.team
         if stone.info.team == x[turn]:
@@ -63,34 +61,43 @@ def heuristic(all_stone, turn):
     return heuristic
 
 # get all possible moves for team
-# return [stone, move]
-def get_successors(stones, team1, team2, corpses, must):
+# return [stone, path]
+def get_successors(info_list, team1_info, team2_info, corpses_info, must):
     successors = []
     eat_successors = []
     eat_len = []
     stone_pos_pair = []
-    shift = [[-1,-1],[-1,1],[1,-1],[1,1],[-2,-2],[-2,2],[2,-2],[2,2]]
+    stone_path_pair = []
+    shift = [[-1,-1],[-1,1],[1,-1],[1,1]]
     if must:
-        for stone in stones:
-            stone_pos_pair.append([stone, [[stone.info.cord[0]+x[0], stone.info.cord[1]+x[1]] for x in shift[4:]]])
+        for info in info_list:
+            stone_path_pair.append([info, max_eat(info, team1_info, team2_info, corpses_info)])
+        max_index = []
+        max_len = 0
+        for i in range(0, len(stone_path_pair)):
+            if len(stone_path_pair[i][1][0]) > max_len:
+                max_index = [i]
+                max_len = len(stone_path_pair[i][1][0])
+            elif len(stone_path_pair[i][1][0]) == max_len:
+                max_index.append(i)
+        for i in max_index:
+            successors.append(stone_path_pair[i])
+        return successors
+    
     else:
-        for stone in stones:
-            stone_pos_pair.append([stone, [[stone.info.cord[0]+x[0], stone.info.cord[1]+x[1]] for x in shift]])
+        for info in info_list:
+            stone_pos_pair.append([info, [[info.cord[0]+x[0], info.cord[1]+x[1]] for x in shift]])
 
-    for [stone, pos_list] in stone_pos_pair:
+    for [info, pos_list] in stone_pos_pair:
+        success_pos = []
         for pos in pos_list:
             if pos[1] < 0 or pos[1] > 7:
                 continue
             pos[0] = pos[0]%8
-            tmp = can_move(stone, pos, team1, team2, corpses)
+            tmp = can_move_normal(info, pos, team1_info, team2_info, corpses_info)
             if tmp == 1:
-                successors.append([stone,pos])
+                success_pos.append([pos])
             elif tmp > 1:
-                eat_successors.append([stone,pos])
-                eat_len.append(tmp)
-    if len(eat_len) != 0:
-        max_len = max(eat_len)
-        for length, successor in zip(eat_len, eat_successors):
-            if length == max_len:
-                successors.append(successor)
+                print("oops!")
+        successors.append([info, success_pos])
     return successors

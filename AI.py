@@ -12,10 +12,7 @@ def ai_action(team1, team2, corpses, must_list):
     
     for x in successors:
         print(x[0].info.cord, x[1])
-    """
-    for [stone, successor] in move_list:
-        print("stone ",stone.info.cord,", possible move ",successor)
-    """
+    
 def alphabeta(team1, team2, corpses, depth, alpha, beta, maximizingPlayer):
     state = copy.deepcopy(team1.sprites() + team2.sprites() + corpses.sprites())
     if depth == 0 or gameover(state):
@@ -61,16 +58,17 @@ class AI():
                 next = act_list.pop()
                 cross = [(pre[0]-next[0])/2, (pre[1]-next[1])/2]
                 eaten = get_stone(cross, all_stone)
-                if eaten = None:
+                if eaten == None:
                     print("Error for remove eaten stone")
                 else :
                     if eaten.dead :
                         eaten.kill()
-                    else
+                    else:
                         eaten.die(corpese)
             stone.move_to(act_list[len(act_list) - 1])    
             #eating move
     def get_action(self, team1, team2, corpses, myteam):
+        pass
         # find best path to move
         # move the stone
 # Initial call
