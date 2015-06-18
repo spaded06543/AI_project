@@ -3,7 +3,7 @@ import copy
 def gameover(all_stone):
     over = True
     for stone in all_stone:
-        if stone.info.team != all_stone[0].info.team:
+        if stone.info.team != all_stone[0].info.team and stone.info.team != 0:
             over = False
             break
     if over:
@@ -15,7 +15,11 @@ def occupied(pos, all_stone):
         if stone.info.cord == pos:
             return True
     return False
-
+def get_stone(pos, all_stone)
+    for stone in all_stone:
+        if stone.info.cord == pos:
+            return stone
+    return None
 # return a list of position stone can move
 def normal_move2(stone, all_stone):
     pos_list = []
