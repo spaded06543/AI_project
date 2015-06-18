@@ -1,6 +1,6 @@
 from Rules import *
 from Functions import *
-
+import copy
 def ai_action(team1, team2, corpses, must_list):
     print("start printing all possible moves")
     move_list = []
@@ -16,9 +16,14 @@ def ai_action(team1, team2, corpses, must_list):
     for [stone, successor] in move_list:
         print("stone ",stone.info.cord,", possible move ",successor)
     """
-def alphabeta(team1, team2, corpses, depth, alpha, beta, maximizingPlayer):
+def alphabeta(team, team1, team2, corpses, depth, alpha, beta, maximizingPlayer):
     state = copy.deepcopy(team1.sprites() + team2.sprites() + corpses.sprites())
-    if depth == 0 or gameover(state):
+    if gameover(state):
+        if team == 1:
+            return float("inf")
+        else:
+            return -float("inf")
+    elif depth == 0 :
         return heuristic(state, turn)
     if maximizingPlayer:
         v = float("-inf")
@@ -42,8 +47,10 @@ def alphabeta(team1, team2, corpses, depth, alpha, beta, maximizingPlayer):
         return v
 
 class AI():
-    def __init__(self, strategy = alphabeta):
+    def __init__(self, strategy = alphabeta, team):
         self.strategy = strategy
+        self.team = team
+        
     def set_strategy(self, strategy):
         if not stratetegy == None:
             self.strategy = strategy
@@ -61,7 +68,7 @@ class AI():
                 next = act_list.pop()
                 cross = [(pre[0]-next[0])/2, (pre[1]-next[1])/2]
                 eaten = get_stone(cross, all_stone)
-                if eaten = None:
+                if eaten == None:
                     print("Error for remove eaten stone")
                 else :
                     if eaten.dead :
@@ -70,7 +77,21 @@ class AI():
                         eaten.die(corpese)
             stone.move_to(act_list[len(act_list) - 1])    
             #eating move
-    def get_action(self, team1, team2, corpses, myteam):
+    def get_action(self, team_number, team1, team2, corpses, depth = 2):
+        team = None
+        if team_number == 1:
+            team = [x.info for x in team1]
+        else:
+            team = [x.info for x in team2]
+        t1 = [x.info for x in team1]
+        t2 = [x.info for x in team2]
+        cp = [x.info for x in corpses]
+        alpha = -float("inf")
+        beta = float("inf")
+        best_choose = None
+        for all_can_move in get_successors(team, t1, t2, cp, False):
+            t1 = 
+            tmp_max = alphabeta(self.team, team1, team2, corpses, depth, True)
         # find best path to move
         # move the stone
 # Initial call

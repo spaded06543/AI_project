@@ -2,13 +2,8 @@ import copy
 
 def gameover(all_stone):
     over = True
-    basic = None
     for stone in all_stone:
-        if stone.info.team != 0:
-            basic = stone
-            break
-    for stone in all_stone:
-        if stone.info.team != basic.info.team and stone.info.team != 0:
+        if stone.info.team != all_stone[0].info.team and stone.info.team != 0:
             over = False
             break
     if over:
@@ -20,23 +15,25 @@ def occupied(pos, all_stone):
         if stone.info.cord == pos:
             return True
     return False
+    
 def get_stone(pos, all_stone)
     for stone in all_stone:
         if stone.info.cord == pos:
             return stone
     return None
 # return a list of position stone can move
-def normal_move2(stone, all_stone):
+def normal_move2(stone_small, all_stone):
     pos_list = []
-    if stone.info.king :
+    all_pos = [x.cord for x in all_stone]
+    if stone_small.king :
         D = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
-    elif stone.info.team == 1 :
+    elif stone_small.team == 1 :
         D = [[1, 1], [-1, 1]]
     else :
         D = [[1, -1], [-1, -1]]
     for d in D :
-        next = [(stone.info.cord[0] + d[0])%8, stone.info.cord[1] + d[1]]
-        if not occupied(next, all_stone) and next[1] >= 0 and next[1] <= 7:
+        next = [(stone_small.cord[0] + d[0])%8, stone_small.cord[1] + d[1]]
+        if not (next in all_pos) and next[1] >= 0 and next[1] <= 7:
             pos_list.append(next)
     return pos_list
 
@@ -175,18 +172,18 @@ def eat_move(held, pos, team1, team2, corpses):
 def max_eat(main_stone, team1, team2, corpses):
     l = 0
     tmp_path = [];
-    t1_p = [x.info.cord for x in team1.sprites()]
-    t2_p = [x.info.cord for x in team2.sprites()]
-    cp_p = [x.info.cord for x in corpses.sprites()]
+    t1_p = [x.cord for x in team1]
+    t2_p = [x.cord for x in team2]
+    cp_p = [x.cord for x in corpses]
     total_p = [cp_p, t1_p, t2_p]
-    total_p[main_stone.info.team].remove(main_stone.info.cord)
-    stack = [(main_stone.info.cord, [], total_p)]
+    total_p[main_stone.team].remove(main_stone)
+    stack = [(main_stone.cord, [], total_p)]
     #stack = [(main_stone.info.cord, [], team1, team2, corpses)];
     #print("=======MAX_EAT : {0}=======".format(main_stone.info.cord))
     D = None
-    if main_stone.info.king :
+    if main_stone.king :
         D = [[2, 2], [2, -2], [-2, 2], [-2, -2]] #direction
-    elif main_stone.info.team == 1 :
+    elif main_stone.team == 1 :
         D = [[2, 2], [-2, 2]]
     else :
         D = [[2, -2], [-2, -2]]
@@ -205,7 +202,7 @@ def max_eat(main_stone, team1, team2, corpses):
                 eaten= [(int(d[0]/2) + a[0][0]) % 8, int(d[1] / 2) + a[0][1]]
                 #eaten = get_stone(cross, stones)
                 #print("eat ?{0}".format(eaten))
-                if eaten in stones and eaten not in a[2][main_stone.info.team] :
+                if eaten in stones and eaten not in a[2][main_stone.team] :
                     #print("\t~eat ok~")
                     if eaten in t1:
                         t1.remove(eaten)
