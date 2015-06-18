@@ -2,12 +2,32 @@ import copy
 
 def gameover(all_stone):
     over = True
+    basic = None
     for stone in all_stone:
-        if stone.info.team != all_stone[0].info.team and stone.info.team != 0:
+        if stone.info.team != 0:
+            basic = stone
+            break
+    for stone in all_stone:
+        if stone.info.team != basic.info.team and stone.info.team != 0:
             over = False
             break
     if over:
-        print("player",all_stone[0].info.team,"wins!")
+        print("player",basic.info.team,"wins!")
+    return over
+
+def gameover_light(all_info):
+    over = True
+    basic = None
+    for info in all_info:
+        if info.team != 0:
+            basic = info
+            break
+    for info in all_info:
+        if info.team != basic.team and info.team != 0:
+            over = False
+            break
+    if over:
+        print("player",basic.team,"wins!")
     return over
 # check if pos has a stone already
 def occupied(pos, all_stone):
