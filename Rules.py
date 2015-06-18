@@ -2,8 +2,13 @@ import copy
 
 def gameover(all_stone):
     over = True
+    basic = None
     for stone in all_stone:
-        if stone.info.team != all_stone[0].info.team:
+        if stone.info.team != 0:
+            basic = stone
+            break
+    for stone in all_stone:
+        if stone.info.team != basic.info.team and stone.info.team != 0:
             over = False
             break
     if over:

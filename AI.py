@@ -17,7 +17,7 @@ def ai_action(team1, team2, corpses, must_list):
         print("stone ",stone.info.cord,", possible move ",successor)
     """
 def alphabeta(team1, team2, corpses, depth, alpha, beta, maximizingPlayer):
-    state = copy.deepcopy(team1 + team2 + corpses)
+    state = copy.deepcopy(team1.sprites() + team2.sprites() + corpses.sprites())
     if depth == 0 or gameover(state):
         return heuristic(state, turn)
     if maximizingPlayer:
