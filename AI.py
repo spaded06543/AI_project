@@ -40,6 +40,38 @@ def alphabeta(team1, team2, corpses, depth, alpha, beta, maximizingPlayer):
             if beta <= alpha: # alpha cut-off
                 break
         return v
-        
+
+class AI():
+    def __init__(self, strategy = alphabeta):
+        self.strategy = strategy
+    def set_strategy(self, strategy):
+        if not stratetegy == None:
+            self.strategy = strategy
+            
+    def move_stone(self, stone, act_list, team1, team2, corpses):
+        D = [1, -1]
+        shift = (act_list[0][0] - stone.info.cord[0])*(act_list[0][1] - stone.info.cord[1])
+        if shift in D:
+            stone.move_to(act_list[0])
+            #normal move:
+        else :
+            all_stone = team1.sprites() + team2.sprites() + corpses.sprites() 
+            pre = stone.info.cord
+            while(act_list):
+                next = act_list.pop()
+                cross = [(pre[0]-next[0])/2, (pre[1]-next[1])/2]
+                eaten = get_stone(cross, all_stone)
+                if eaten = None:
+                    print("Error for remove eaten stone")
+                else :
+                    if eaten.dead :
+                        eaten.kill()
+                    else
+                        eaten.die(corpese)
+            stone.move_to(act_list[len(act_list) - 1])    
+            #eating move
+    def get_action(self, team1, team2, corpses, myteam):
+        # find best path to move
+        # move the stone
 # Initial call
 #alphabeta(origin, depth, float("-inf"), float("inf"), True)
