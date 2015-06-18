@@ -91,12 +91,12 @@ if __name__ == "__main__" :
                 # mouse is holding a stone => place the stone(or not)
                 elif selected_sprite and stone_selected:
                     pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
+                    
                     legal_move = move_if_legal(selected_sprite, pos, team1, team2, corpses)
                     if legal_move:
                         if not selected_sprite.eating:
                             selected_sprite.selected = False
                             stone_selected = False
-                            selected_sprite.eating = False
                         if selected_sprite.info.team == 1 and pos[1] == 7 or selected_sprite.info.team == 2 and pos[1] == 0:
                             selected_sprite.become_king()
                         if not (legal_move == -1 or selected_sprite.must_eat):
@@ -104,14 +104,16 @@ if __name__ == "__main__" :
                             flag = 1
                         team1_must = []
                         team2_must = []
+                        all_stone = team1.sprites()+team2.sprites()+corpses.sprites()
+                        all_stone_light = [x.info for x in all_stone]
                         for stone in team1.sprites():
-                            if can_eat_more(stone, team1.sprites()+team2.sprites()+corpses.sprites()):
+                            if can_eat_more(stone.info, all_stone_light):
                                 team1_must.append(stone)
                                 stone.must_eat = True
                             elif stone.must_eat:
                                 stone.must_eat = False
                         for stone in team2.sprites():
-                            if can_eat_more(stone, team1.sprites()+team2.sprites()+corpses.sprites()):
+                            if can_eat_more(stone.info, all_stone_light):
                                 team2_must.append(stone)
                                 stone.must_eat = True
                                 print(team2_must)

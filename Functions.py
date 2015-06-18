@@ -62,32 +62,34 @@ def heuristic(all_stone, turn):
 
 # get all possible moves for team
 # return [stone, path]
-def get_successors(info_list, team1_info, team2_info, corpses_info, must):
+def get_successors(team, team1_info, team2_info, corpses_info):
     successors = []
     eat_successors = []
     eat_len = []
     stone_pos_pair = []
     stone_path_pair = []
     shift = [[-1,-1],[-1,1],[1,-1],[1,1]]
-    if must:
-        for info in info_list:
-            stone_path_pair.append([info, max_eat(info, team1_info, team2_info, corpses_info)])
-        max_index = []
-        max_len = 0
-        for i in range(0, len(stone_path_pair)):
-            if len(stone_path_pair[i][1][0]) > max_len:
-                max_index = [i]
-                max_len = len(stone_path_pair[i][1][0])
-            elif len(stone_path_pair[i][1][0]) == max_len:
-                max_index.append(i)
-        for i in max_index:
-            successors.append(stone_path_pair[i])
+    info_list = (team1_info)if(team == 1)else(team2_info)
+        
+    for info in info_list:
+        path = max_eat(info, team1_info, team2_info, corpses_info)
+        if path:
+            stone_path_pair.append([info, path])
+    max_index = []
+    max_len = 0
+    for i in range(0, len(stone_path_pair)):
+        if len(stone_path_pair[i][1][0]) > max_len:
+            max_index = [i]
+            max_len = len(stone_path_pair[i][1][0])
+        elif len(stone_path_pair[i][1][0]) == max_len:
+            max_index.append(i)
+    for i in max_index:
+        successors.append(stone_path_pair[i])
+    if successors:
         return successors
-    
-    else:
-        for info in info_list:
-            stone_pos_pair.append([info, [[info.cord[0]+x[0], info.cord[1]+x[1]] for x in shift]])
 
+    for info in info_list:
+        stone_pos_pair.append([info, [[info.cord[0]+x[0], info.cord[1]+x[1]] for x in shift]])
     for [info, pos_list] in stone_pos_pair:
         success_pos = []
         for pos in pos_list:
