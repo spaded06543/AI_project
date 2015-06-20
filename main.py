@@ -52,10 +52,11 @@ if __name__ == "__main__" :
         if gamemode == 0 and player_turn == 2:
             #ai_action(team1, team2, corpses)
             for i in ai.get_action(team1, team2, corpses):
+                pygame.time.delay(500)
                 screen.blit(bg.image, bg.rect)
                 draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
                 pygame.display.update()
-                pygame.time.delay(2000)
+                pygame.time.delay(500)
             #if must continue: continue
             player_turn = 1
         if flag == 1:
