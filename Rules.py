@@ -26,8 +26,6 @@ def gameover_light(all_info):
         if info.team != basic.team and info.team != 0:
             over = False
             break
-    if over:
-        print("player",basic.team,"wins!")
     return over
 # check if pos has a stone already
 def occupied(pos, all_info):

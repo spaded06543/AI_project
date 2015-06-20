@@ -45,7 +45,7 @@ def heuristic(all_stone, team):
         #print stone.team
         if stone.team == x[team]:
             if stone.king == True:
-                heuristic += 7
+                heuristic += 8
             else:
                 heuristic += stone.cord[1]
             #print "player",stone.team," ",stone.cord[1]
@@ -54,7 +54,7 @@ def heuristic(all_stone, team):
             heuristic += 0
         elif stone.team != x[team]:
             if stone.king == True:
-                heuristic -= 7
+                heuristic -= 8
             else:
                 heuristic -= mapping[stone.cord[1]]
             #print "player",stone.team," ",mapping[stone.cord[1]]

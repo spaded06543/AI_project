@@ -41,7 +41,7 @@ if __name__ == "__main__" :
     # gamemode 0 = AI; gamemode 1 = 2P
     gamemode = select_gamemode(select_window, button1, button2, screen, width, height, SCALE)
     if gamemode == 0:
-        ai = AI(2)
+        ai = AI(2, screen)
     # set flags, entering game loop
     stone_selected = False
     player_turn = 1
@@ -51,11 +51,15 @@ if __name__ == "__main__" :
     while _running:
         if gamemode == 0 and player_turn == 2:
             #ai_action(team1, team2, corpses)
-            ai.get_action(team1, team2, corpses)
+            for i in ai.get_action(team1, team2, corpses):
+                screen.blit(bg.image, bg.rect)
+                draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
+                pygame.display.update()
+                pygame.time.delay(2000)
             #if must continue: continue
             player_turn = 1
         if flag == 1:
-            print (heuristic(stones,player_turn))
+            #print (heuristic(stones,player_turn))
             flag = 0
         # check event
         for event in pygame.event.get():
