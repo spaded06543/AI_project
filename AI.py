@@ -1,49 +1,48 @@
 from Rules import *
 from Functions import *
 import copy
-def ai_action(team1, team2, corpses, must_list):
-    print("start printing all possible moves")
-    move_list = []
-    successors = []
-    if must_list:
-        successors = get_successors(must_list, team1, team2, corpses, True)
-    else:
-        successors = get_successors(team2.sprites(), team1, team2, corpses, False)
-    
-    for x in successors:
-        print(x[0].info.cord, x[1])
 def virtual_move(stone_small, act_list, t1, t2, cp):
-    D = [1, -1]
-    shift = (act_list[0][0] - stone.cord[0])*(act_list[0][1] - stone.cord[1])
+    D = [1, -1, 7, -7]
+    shift = ((act_list[0][0] - stone_small.cord[0]) % 8)*(act_list[0][1] - stone_small.cord[1])
+    #print("shift {0}, {1}".format((act_list[0][0] - stone_small.cord[0]) % 8,act_list[0][1] - stone_small.cord[1]))
     if shift in D:
         pass
         #normal move:
     else :
         all_stone = t1 + t2 + cp 
-        pre = stone.cord
-        while(act_list):
-            next = act_list.pop()
-            cross = [(pre[0]-next[0])/2, (pre[1]-next[1])/2]
-            eaten = (x for x in all_stone if x.cord == cross)
+        pre = stone_small.cord
+        for i in range(0, len(act_list)):
+            next = act_list[i]
+            cross = [(next[0]+pre[0])/2, (next[1]+pre[1])/2]
+            if (next[0] - pre[0]) in [6, -6] :
+                cross[0] = (cross[0] + 4) % 8
+            get_eaten = [x for x in t1 + t2 + cp if x.cord == cross]
+            print("eaten {0}".format(get_eaten))
+            eaten = get_eaten[0]
             if eaten == None:
                 print("Error for remove eaten stone")
             else :
-                if eaten.dead :
+                if eaten in cp :
                     cp.remove(eaten)
                 else:
-                    if eaten.team = 1:
+                    if eaten.team == 1:
                         t1.remove(eaten)
-                    else
+                    else :
                         t2.remove(eaten)
-                    eaten.team = 0
                     cp.append(eaten)
-        stone = (x for x in t1 + t2 if stone_small == x)
-        stone.cord = act_list[len(act_list) - 1]
+            pre = next
+    stone = [x for x in (t1 + t2) if stone_small.cord == x.cord][0]
+    #print("~~~~{0}~~~~".format(stone))
+    if stone == None:
+        print("==============ERROR==============")
+    stone.cord = act_list[len(act_list) - 1]
+    if stone.cord[1] + stone.team * 7 == 14:
+        stone.king = True
 
 def alphabeta(team, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
     state = copy.deepcopy(t1 + t2 + cp)
     if gameover_light(state):
-        if turn :
+        if team == 1 :
             return float("inf")
         else:
             return -float("inf")
@@ -78,7 +77,7 @@ def alphabeta(team, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
         return v
 
 class AI():
-    def __init__(self, strategy = alphabeta, team):
+    def __init__(self, team, strategy = alphabeta):
         self.strategy = strategy
         self.team = team
         
@@ -87,32 +86,36 @@ class AI():
             self.strategy = strategy
             
     def move_stone(self, stone, act_list, team1, team2, corpses):
-        D = [1, -1]
-        shift = (act_list[0][0] - stone.info.cord[0])*(act_list[0][1] - stone.info.cord[1])
+        D = [1, -1, 7, -7]
+        shift = ((act_list[0][0] - stone.info.cord[0]) % 8)*(act_list[0][1] - stone.info.cord[1])
         if shift in D:
             stone.move_to(act_list[0])
             #normal move:
         else :
             all_stone = team1.sprites() + team2.sprites() + corpses.sprites() 
             pre = stone.info.cord
-            while(act_list):
-                next = act_list.pop()
-                cross = [(pre[0]-next[0])/2, (pre[1]-next[1])/2]
+            for i in range(0, len(act_list)):
+                next = act_list[i]
+                cross = [(next[0]+pre[0])/2, (next[1]+pre[1])/2]
+                if (next[0] - pre[0]) in [6, -6] :
+                    cross[0] = (cross[0] + 4) % 8
                 eaten = get_stone(cross, all_stone)
                 if eaten == None:
                     print("Error for remove eaten stone")
                 else :
-                    if eaten.dead :
+                    if eaten in corpses :
                         eaten.kill()
                     else:
-                        eaten.die(corpese)
-            stone.move_to(act_list[len(act_list) - 1])    
+                        eaten.die(corpses)
+                pre = next
+        true_stone = [x for x in team1.sprites() + team2.sprites() if x.info.cord == stone.info.cord][0]
+        true_stone.move_to(act_list[len(act_list) - 1])    
             #eating move
     
             
     def get_action(self, team1, team2, corpses, depth = 2):
         team = None
-        if team_number == 1:
+        if self.team == 1:
             team = [x.info for x in team1]
         else:
             team = [x.info for x in team2]
@@ -122,18 +125,20 @@ class AI():
         alpha = float("-inf")
         beta = float("inf")
         best_act = None
-        for move_list in get_successors(self.team, t1, t2, cp, False):
+        for move_list in get_successors(self.team, t1, t2, cp):
             for move_path in move_list[1]:
                 t1_next = copy.deepcopy(t1)
                 t2_next = copy.deepcopy(t2)
                 cp_next = copy.deepcopy(cp)
+                print("move list {0}, {1}".format(move_list[0].cord, move_path))
                 virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
-                tmp_max = alphabeta(self.team, depth % 2, t1, t2, cp, depth, alpha, beta, False)
+                tmp_max = self.strategy(self.team, t1, t2, cp, depth, alpha, beta, False)
                 if tmp_max > alpha :
                     alpha = tmp_max
                     best_act = [move_list[0], move_path]
-            
-        self.move_stone(best_act[0], best_act[1], team1, team2, corpses)
+        stone_list = [corpses, team1, team2]
+        act_stone = [x for x in stone_list[self.team] if x.info == best_act[0]][0]    
+        self.move_stone(act_stone, best_act[1], team1, team2, corpses)
         # find best path to move
         # move the stone
 # Initial call

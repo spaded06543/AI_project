@@ -40,18 +40,18 @@ if __name__ == "__main__" :
     # select game mode(AI or 2P)
     # gamemode 0 = AI; gamemode 1 = 2P
     gamemode = select_gamemode(select_window, button1, button2, screen, width, height, SCALE)
-
+    if gamemode == 0:
+        ai = AI(2)
     # set flags, entering game loop
     stone_selected = False
     player_turn = 1
     msg_display_frame = 0
     _running = True
-    team1_must = []
-    team2_must = []
     flag = 0
     while _running:
         if gamemode == 0 and player_turn == 2:
-            ai_action(team1, team2, corpses, team2_must)
+            #ai_action(team1, team2, corpses)
+            ai.get_action(team1, team2, corpses)
             #if must continue: continue
             player_turn = 1
         if flag == 1:
