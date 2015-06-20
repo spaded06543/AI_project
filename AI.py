@@ -17,7 +17,7 @@ def virtual_move(stone_small, act_list, t1, t2, cp):
             if (next[0] - pre[0]) in [6, -6] :
                 cross[0] = (cross[0] + 4) % 8
             get_eaten = [x for x in t1 + t2 + cp if x.cord == cross]
-            print("eaten {0}".format(get_eaten))
+            #print("eaten {0}".format(get_eaten))
             eaten = get_eaten[0]
             if eaten == None:
                 print("Error for remove eaten stone")
@@ -135,7 +135,8 @@ class AI():
                 cp_next = copy.deepcopy(cp)
                 print("move list {0}, {1}".format(move_list[0].cord, move_path))
                 virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
-                tmp_max = self.strategy(self.team, t1, t2, cp, depth, alpha, beta, False)
+                tmp_max = self.strategy(self.team, t1_next, t2_next, cp_next, depth, alpha, beta, False)
+                print(tmp_max)
                 if tmp_max > alpha :
                     alpha = tmp_max
                     best_act = [move_list[0], move_path]
