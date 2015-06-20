@@ -1,4 +1,5 @@
 import copy
+import Functions
 
 def gameover(all_stone):
     over = True
@@ -14,7 +15,7 @@ def gameover(all_stone):
     return over
 
 def gameover_light(team, team1_info, team2_info, corpses_info):
-    if not get_successors(team, team1_info, team2_info, corpses_info):
+    if not Functions.get_successors(team, team1_info, team2_info, corpses_info):
         return True
     all_info = team1_info + team2_info + corpses_info
     basic = None

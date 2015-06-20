@@ -1,7 +1,6 @@
 import copy
 import pygame
-from Rules import *
-
+import Rules
 # function for drawing all sprites in a given list
 # Note that drawing top_stone last keep it on top layer
 def draw_sprite(sprites, screen):
@@ -70,7 +69,7 @@ def get_successors(team, team1_info, team2_info, corpses_info):
     info_list = (team1_info)if(team == 1)else(team2_info)
         
     for info in info_list:
-        path = max_eat(info, team1_info, team2_info, corpses_info)
+        path = Rules.max_eat(info, team1_info, team2_info, corpses_info)
         if path:
             stone_path_pair.append([info, path])
     max_index = []
@@ -94,7 +93,7 @@ def get_successors(team, team1_info, team2_info, corpses_info):
             if pos[1] < 0 or pos[1] > 7:
                 continue
             pos[0] = pos[0]%8
-            move_list = normal_move(info, team1_info+team2_info+corpses_info)
+            move_list = Rules.normal_move(info, team1_info+team2_info+corpses_info)
             if pos in move_list:
                 success_pos.append([pos])
         successors.append([info, success_pos])

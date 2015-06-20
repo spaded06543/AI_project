@@ -41,11 +41,11 @@ def virtual_move(stone_small, act_list, t1, t2, cp):
 
 def alphabeta(team, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
     state = copy.deepcopy(t1 + t2 + cp)
-    if gameover_light(state):
+    if gameover_light(team, t1, t2, cp):
         if team == 1 :
-            return float("inf")
+            return 100000
         else:
-            return -float("inf")
+            return -100000
     elif depth == 0 :
         return heuristic(state, team)
     if maximizingPlayer:
@@ -56,7 +56,7 @@ def alphabeta(team, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
                 t2_next = copy.deepcopy(t2)
                 cp_next = copy.deepcopy(cp)
                 virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
-                v = max(v, alphabeta(3 - team, t1_next, t2_next, cp_next, depth - 1, alpha, beta, False))
+                v = max(v, alphabeta(team, t1_next, t2_next, cp_next, depth - 1, alpha, beta, False))
                 alpha = max(alpha, v)
                 if beta <= alpha: # beta cut-off
                     break
@@ -70,17 +70,16 @@ def alphabeta(team, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
                 t2_next = copy.deepcopy(t2)
                 cp_next = copy.deepcopy(cp)
                 virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
-                v = min(v, alphabeta(3 - team, t1_next, t2_next, cp_next, depth - 1, alpha, beta, True))
-                alpha = min(alpha, v)
+                v = min(v, alphabeta(team, t1_next, t2_next, cp_next, depth - 1, alpha, beta, True))
+                beta = min(beta, v)
                 if beta <= alpha: # beta cut-off
                     break
         return v
 
 class AI():
-    def __init__(self, team, screen, strategy = alphabeta):
+    def __init__(self, team, strategy = alphabeta):
         self.strategy = strategy
         self.team = team
-        self.screen = screen
         
     def set_strategy(self, strategy):
         if not stratetegy == None:
@@ -117,7 +116,7 @@ class AI():
             #eating move
     
             
-    def get_action(self, team1, team2, corpses, depth = 2):
+    def get_action(self, team1, team2, corpses, depth = 3):
         team = None
         if self.team == 1:
             team = [x.info for x in team1]

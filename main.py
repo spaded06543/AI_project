@@ -41,23 +41,56 @@ if __name__ == "__main__" :
     # gamemode 0 = AI; gamemode 1 = 2P
     gamemode = select_gamemode(select_window, button1, button2, screen, width, height, SCALE)
     if gamemode == 0:
-        ai = AI(2, screen)
+        ai = AI(2)
+        ai2 = AI(1)
     # set flags, entering game loop
     stone_selected = False
     player_turn = 1
     msg_display_frame = 0
     _running = True
     flag = 0
-    while _running:
+    while True:
+        team1_info = [x.info for x in team1.sprites()]
+        team2_info = [x.info for x in team2.sprites()]
+        corpses_info = [x.info for x in corpses.sprites()]
+        _running = not gameover_light(player_turn, team1_info, team2_info, corpses_info)
+        if not _running:
+            break
+        
+        # draw screen and display
+        screen.blit(bg.image, bg.rect)
+        draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
+        # display message(or not) acording to set frame number
+        if msg_display_frame > 0:
+            screen.blit(bg.image, bg.rect)
+            draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
+            screen.blit(msg1.image, msg1.rect)
+            screen.blit(msg2.image, msg2.rect)
+            msg_display_frame = msg_display_frame - 1
+        else:
+            msg1.move_to_pixel([0, height])
+            msg2.move_to_pixel([0, height])
+        pygame.display.update()
+        pygame.time.delay(30)
+
         if gamemode == 0 and player_turn == 2:
-            #ai_action(team1, team2, corpses)
             for i in ai.get_action(team1, team2, corpses):
-                pygame.time.delay(1200)
+                pygame.time.delay(500)
                 screen.blit(bg.image, bg.rect)
                 draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
                 pygame.display.update()
-            #if must continue: continue
+                pygame.time.delay(500)
             player_turn = 1
+        """
+        elif gamemode == 0 and player_turn == 1:
+            for i in ai2.get_action(team1, team2, corpses):
+                pygame.time.delay(500)
+                screen.blit(bg.image, bg.rect)
+                draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
+                pygame.display.update()
+                pygame.time.delay(500)
+            player_turn = 2
+        """
         if flag == 1:
             #print (heuristic(stones,player_turn))
             flag = 0
@@ -88,9 +121,11 @@ if __name__ == "__main__" :
                 # check if player can take stone
                 pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
                 info = copy.copy(selected_sprite.info)
+                """
                 team1_info = [x.info for x in team1.sprites()]
                 team2_info = [x.info for x in team2.sprites()]
                 corpses_info = [x.info for x in corpses.sprites()]
+                """
                 successors = get_successors(player_turn, team1_info, team2_info, corpses_info)
                 if not selected_sprite.info.cord in [x[0].cord for x in successors]:
                     msg2.move_to_pixel([(width-240*SCALE/100)/2, (height-40*SCALE/100)/2])
@@ -151,31 +186,5 @@ if __name__ == "__main__" :
                         flag = 1
             else:
                 pass
-        # check if any player wins
-        stones = team1.sprites() + team2.sprites()
-        same_team = True
-        for stone in stones:
-            if not stone.info.team == stones[0].info.team:
-                same_team = False
-                break
-        if same_team:
-            print("player",stones[0].info.team,"wins!")
-            _running = False
-        # draw screen and display
-        screen.blit(bg.image, bg.rect)
-        draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
-        # display message(or not) acording to set frame number
-        if msg_display_frame > 0:
-            screen.blit(bg.image, bg.rect)
-            draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
-            screen.blit(msg1.image, msg1.rect)
-            screen.blit(msg2.image, msg2.rect)
-            msg_display_frame = msg_display_frame - 1
-        else:
-            msg1.move_to_pixel([0, height])
-            msg2.move_to_pixel([0, height])
-        pygame.display.update()
-        pygame.time.delay(30)
-
     pygame.quit()
     sys.exit()
