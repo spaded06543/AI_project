@@ -52,10 +52,10 @@ if __name__ == "__main__" :
         if gamemode == 0 and player_turn == 2:
             #ai_action(team1, team2, corpses)
             for i in ai.get_action(team1, team2, corpses):
+                pygame.time.delay(1200)
                 screen.blit(bg.image, bg.rect)
                 draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
                 pygame.display.update()
-                pygame.time.delay(2000)
             #if must continue: continue
             player_turn = 1
         if flag == 1:
@@ -136,7 +136,8 @@ if __name__ == "__main__" :
                         team1_info = [x.info for x in team1.sprites()]
                         team2_info = [x.info for x in team2.sprites()]
                         corpses_info = [x.info for x in corpses.sprites()]
-                        if can_eat_more(selected_sprite.info, team1_info + team2_info + corpses_info):
+                        tmp = Stone_light(selected_sprite.info.cord, selected_sprite.info.team, info.king)
+                        if can_eat_more(tmp, team1_info + team2_info + corpses_info):
                             selected_sprite.must_eat = True
                             selected_sprite.eating = True
                         else:

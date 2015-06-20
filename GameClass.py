@@ -19,10 +19,10 @@ class PureImage:
 
 # class holds important info for stone
 class Stone_light:
-    def __init__(self, pos, team):
+    def __init__(self, pos, team, king = False):
         self.cord = pos 
         self.team = team
-        self.king = False
+        self.king = king
 
 # class for a stone, inherit from Sprite class in pygame
 class Stone(pygame.sprite.Sprite):

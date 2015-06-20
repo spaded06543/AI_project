@@ -11,12 +11,12 @@ def gameover(all_stone):
         if stone.info.team != basic.info.team and stone.info.team != 0:
             over = False
             break
-    if over:
-        print("player",basic.info.team,"wins!")
     return over
 
-def gameover_light(all_info):
-    over = True
+def gameover_light(team, team1_info, team2_info, corpses_info):
+    if not get_successors(team, team1_info, team2_info, corpses_info):
+        return True
+    all_info = team1_info + team2_info + corpses_info
     basic = None
     for info in all_info:
         if info.team != 0:
@@ -24,9 +24,9 @@ def gameover_light(all_info):
             break
     for info in all_info:
         if info.team != basic.team and info.team != 0:
-            over = False
-            break
-    return over
+            return False
+    return True
+
 # check if pos has a stone already
 def occupied(pos, all_info):
     for info in all_info:
