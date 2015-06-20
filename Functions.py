@@ -64,8 +64,6 @@ def heuristic(all_stone, turn):
 # return [stone, path]
 def get_successors(team, team1_info, team2_info, corpses_info):
     successors = []
-    eat_successors = []
-    eat_len = []
     stone_pos_pair = []
     stone_path_pair = []
     shift = [[-1,-1],[-1,1],[1,-1],[1,1]]
@@ -96,10 +94,8 @@ def get_successors(team, team1_info, team2_info, corpses_info):
             if pos[1] < 0 or pos[1] > 7:
                 continue
             pos[0] = pos[0]%8
-            tmp = can_move_normal(info, pos, team1_info, team2_info, corpses_info)
-            if tmp == 1:
+            move_list = normal_move(info, team1_info+team2_info+corpses_info)
+            if pos in move_list:
                 success_pos.append([pos])
-            elif tmp > 1:
-                print("oops!")
         successors.append([info, success_pos])
     return successors

@@ -68,18 +68,13 @@ class Stone(pygame.sprite.Sprite):
                 self.image = pygame.transform.smoothscale(self.image, (int(img_w*(self.scale/100)), int(img_h*(self.scale/100))))
         self.info.king = True
 
-    def move(self, shift):
-        self.rect.move_ip(shift[0] * BLOCK, shift[1] * BLOCK)
-        self.info.cord = [self.info.cord[0] + shift[0], self.info.cord[1] + shift[1]]
-        # edge check
-        if self.rect.left < 0 or self.rect.right > width or self.rect.top < 0 or self.rect.bottom > height:
-            self.rect.move_ip(-shift[0] * BLOCK, -shift[1] * BLOCK)
-            self.info.cord = [self.info.cord[0] - shift[0], self.info.cord[1] - shift[1]]
-
     def move_to(self, pos):
         self.rect = self.image.get_rect()
         self.rect.move_ip(pos[0] * BLOCK, pos[1] * BLOCK)
         self.info.cord = [pos[0], pos[1]]
+        if self.info.team == 1 and self.info.cord[1] == 7 or \
+           self.info.team == 2 and self.info.cord[1] == 0:
+            self.become_king()
         print(self.info.cord)
     
     def move_to_pixel(self, pixel):
