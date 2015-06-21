@@ -34,13 +34,14 @@ class game():
         flag = False
         lose = 0
         while count < turn:
-            count += 1
             for i in range(2):
+                count += 1
                 ret = self.player[i].agent.get_action_light(self.player[i].weight, self.stones[1], self.stones[2], self.stones[0])
                 if ret == -1:
                     flag = True
                     win_team = 0 if i == 1 else 1
                     self.player[win_team].win += 1
+                    print("player {0} have no choice".format(self.player[1-win_team].id))
                     print("player {0} win".format(self.player[win_team].id))
                     break
             if flag :
@@ -49,6 +50,7 @@ class game():
         if count == turn:
             t1_stone = len(self.stone[1])
             t2_stone = len(self.stone[2])
+            print("player/stone : ({0} / {1}) vs ({2} / {3})".format(self.player[0].id, t1_stone, self.player[1].id, tw_stone))
             if t1_stone > t2_stone :
                 print("player {0} win".format(self.player[0].id))
                 self.player[0].win += 1
