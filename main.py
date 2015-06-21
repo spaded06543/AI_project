@@ -74,12 +74,14 @@ if __name__ == "__main__" :
         pygame.time.delay(30)
 
         if gamemode == 0 and player_turn == 2:
-            for i in ai.get_action(team1, team2, corpses):
-                pygame.time.delay(500)
+            weight = [3, 13, 9, 14, 4]
+            # location, gap, king_gap, max_path_len, num_option
+            for i in ai.get_action(weight, team1, team2, corpses):
+                pygame.time.delay(50)
                 screen.blit(bg.image, bg.rect)
                 draw_sprite(team1.sprites()+team2.sprites()+corpses.sprites(), screen)
                 pygame.display.update()
-                pygame.time.delay(500)
+                pygame.time.delay(50)
             player_turn = 1
         """
         elif gamemode == 0 and player_turn == 1:
@@ -121,11 +123,11 @@ if __name__ == "__main__" :
                 # check if player can take stone
                 pos = [(event.pos[0] - event.pos[0]%BLOCK)/BLOCK, (event.pos[1] - event.pos[1]%BLOCK)/BLOCK]
                 info = copy.copy(selected_sprite.info)
-                """
+                
                 team1_info = [x.info for x in team1.sprites()]
                 team2_info = [x.info for x in team2.sprites()]
                 corpses_info = [x.info for x in corpses.sprites()]
-                """
+                
                 successors = get_successors(player_turn, team1_info, team2_info, corpses_info)
                 if not selected_sprite.info.cord in [x[0].cord for x in successors]:
                     msg2.move_to_pixel([(width-240*SCALE/100)/2, (height-40*SCALE/100)/2])

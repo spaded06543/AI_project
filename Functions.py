@@ -37,28 +37,41 @@ def select_gamemode(window, button1, button2, screen, width, height, SCALE):
 
 def heuristic(all_stone, team):
     heuristic = 0
-    x = {1:2, 2:1}
-    mapping = [[9.8, 8.1, 6.5, 5.0, 3.6, 2.3, 1.1, 0.0],
-               [0.0, 1.1, 2.3, 3.6, 5.0, 6.5, 8.1, 9.8]]
+    mapping = {0:7, 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:0}
     #print x[turn]
     for stone in all_stone:
         #print stone.team
-        if stone.team == x[team]:
+        if stone.team == team:
             if stone.king == True:
-                heuristic += 10
+                heuristic += 8
             else:
-                heuristic += mapping[team-1][int(stone.cord[1])]
+                heuristic += stone.cord[1]
             #print "player",stone.team," ",stone.cord[1]
+
         elif stone.team == 0:
-            pass
-        elif stone.team != x[team]:
+            heuristic += 0
+        elif stone.team != team:
             if stone.king == True:
-                heuristic -= 10
+                heuristic -= 8
             else:
-                heuristic -= mapping[team-1][int(stone.cord[1])]
+                heuristic -= mapping[stone.cord[1]]
             #print "player",stone.team," ",mapping[stone.cord[1]]
     return heuristic
+    
+def stone_gap(t1, t2):
+    return len(t1) - len(t2)
+    
+def king_stone_gap(t1, t2):
+    king1 = [ x for x in t1 if x.king]
+    king2 = [ x for x in t2 if x.king]
+    return len(king1) - len(king2)
+    
+def max_path_len(successors):
+    return max([ len(x[1]) for x in successors ])
 
+def number_path(successors):
+    return len([ len(x[1]) for x in successors ])
+    
 # get all possible moves for team
 # return [stone, path]
 def get_successors(team, team1_info, team2_info, corpses_info):
