@@ -14,9 +14,9 @@ class player():
 class game():
     def __init__(self, p1, p2):
         p1.agent.set_team(1)
-        p1.agent.set_team(2)
+        p2.agent.set_team(2)
         self.player = [p1, p2]
-        
+        #print(self.player[0].agent.team, self.player[1].agent.team)
         self.stones = [[], [], []]
         for i in range(12):
             pos = [ ((i%4)*2)if(i>3 and i<8)else((i%4)*2+1) , (0)if(i<4)else((1)if(i<8)else(2))]
@@ -33,30 +33,39 @@ class game():
         count = 0
         flag = False
         lose = 0
+        print("player : {0} vs {1}".format(self.player[0].id, self.player[1].id))
+        print("player : {0} vs {1}".format(self.player[0].id, self.player[1].id), file = sys.stderr)
         while count < turn:
             for i in range(2):
                 count += 1
                 ret = self.player[i].agent.get_action_light(self.player[i].weight, self.stones[1], self.stones[2], self.stones[0])
+                print("stone len :", len(self.stones[1]), len(self.stones[2]), len(self.stones[0]))
                 if ret == -1:
                     flag = True
                     win_team = 0 if i == 1 else 1
-                    self.player[win_team].win += 1
+                    self.player[win_team].win += 10
                     print("player {0} have no choice".format(self.player[1-win_team].id))
                     print("player {0} win".format(self.player[win_team].id))
+                    print("player {0} win".format(self.player[win_team].id), file = sys.stderr)
                     break
             if flag :
                 break
         
         if count == turn:
-            t1_stone = len(self.stone[1])
-            t2_stone = len(self.stone[2])
-            print("player/stone : ({0} / {1}) vs ({2} / {3})".format(self.player[0].id, t1_stone, self.player[1].id, tw_stone))
+            t1_stone = len(self.stones[1])
+            t2_stone = len(self.stones[2])
+            score = abs(t1_stone - t2_stone)
+            print("player/stone : ({0} / {1}) vs ({2} / {3})".format(self.player[0].id, t1_stone, self.player[1].id, t2_stone))
+            print("player/stone : ({0} / {1}) vs ({2} / {3})".format(self.player[0].id, t1_stone, self.player[1].id, t2_stone), file = sys.stderr)
             if t1_stone > t2_stone :
                 print("player {0} win".format(self.player[0].id))
-                self.player[0].win += 1
+                print("player {0} win".format(self.player[0].id), file = sys.stderr)
+                
+                self.player[0].win += score
             elif t1_stone < t2_stone :
                 print("player {0} win".format(self.player[1].id))
-                self.player[1].win += 1
+                print("player {0} win".format(self.player[1].id), file = sys.stderr)
+                self.player[1].win += score
             
 if __name__ == "__main__":
     if len(sys.argv) < 2 :
@@ -83,6 +92,7 @@ if __name__ == "__main__":
     
     for i in range(generation):
         print("generation : {0}".format(i+1))
+        print("generation : {0}".format(i+1), file = sys.stderr)
         for j in range(10):
             playerList[j].win = 0
         for j in range(10):
@@ -95,16 +105,18 @@ if __name__ == "__main__":
         
         for j in range(10):
             print("player {0} : {1}".format(playerList[j].id, playerList[j].win))
+            print("player {0} : {1}".format(playerList[j].id, playerList[j].win), file = sys.stderr)
             playerList[i].reset_win()
         for j in range(4):
             for k in range(j+1,4):
                 w = [0, 0, 0, 0, 0]
                 for l in range(5):
                     w[l] = playerList[j].weight[l] + playerList[k].weight[l] + random.randint(-3,3)
-                playerList[id].set_weight(weight)
+                playerList[id].set_weight(w)
                 id += 1
         
         
-    for i in range(4):
+    for i in range(10):
         print("AI {0}, weight : {1}".format(i, playerList[i].weight))
+        print("AI {0}, weight : {1}".format(i, playerList[i].weight), file = sys.stderr)
         

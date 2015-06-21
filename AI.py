@@ -43,16 +43,16 @@ def alphabeta(team, weight, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
     state = copy.deepcopy(t1 + t2 + cp)
     if gameover_light(team, t1, t2, cp):
         if maximizingPlayer:
-            return -1000000
+            return -10000
         else:
-            return 1000000
+            return 10000
     elif depth == 0 :
         sum = weight[0] * heuristic(state, team) + weight[1] * stone_gap(t1, t2) + weight[2] * king_stone_gap(t1, t2)
         su = get_successors(team, t1, t2, cp)
         sum += weight[3] * max_path_len(su) + weight[4] * number_path(su)
         return sum
     if maximizingPlayer:
-        v = -100000
+        v = -10000
         for move_list in get_successors(3 - team, t1, t2, cp):
             for move_path in move_list[1]:
                 t1_next = copy.deepcopy(t1)
@@ -67,7 +67,7 @@ def alphabeta(team, weight, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
         #print("max", depth, v, "final")
         return v
     else:
-        v = 100000
+        v = 10000
         #childs = child of state
         for move_list in get_successors(3 - team, t1, t2, cp):
             for move_path in move_list[1]:
@@ -162,10 +162,11 @@ class AI():
             team = t2
         alpha = float("-inf")
         beta = float("inf")
-        #print(team)
+        #print("==team {0}==".format(self.team))
         best_act = None
         for move_list in get_successors(self.team, t1, t2, cp):
             for move_path in move_list[1]:
+                #print(move_list[0].cord, move_path)
                 t1_next = copy.deepcopy(t1)
                 t2_next = copy.deepcopy(t2)
                 cp_next = copy.deepcopy(cp)
@@ -180,6 +181,8 @@ class AI():
         if best_act == None :
             return -1
         virtual_move(best_act[0], best_act[1], t1, t2, cp)
+        #if best_act[0].cord[0] - best_act[1].cord[0] > 1 :
+        #    print("---eat---")
         return 1
         # find best path to move
         # move the stone

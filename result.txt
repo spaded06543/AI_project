@@ -1,0 +1,146 @@
+generation : 1
+player : 1 vs 2
+player 1 have no choice
+player 2 win
+player : 1 vs 3
+player 1 have no choice
+player 3 win
+player : 1 vs 4
+player 1 have no choice
+player 4 win
+player : 1 vs 5
+player 1 have no choice
+player 5 win
+player : 1 vs 6
+player 1 have no choice
+player 6 win
+player : 1 vs 7
+player 1 have no choice
+player 7 win
+player : 1 vs 8
+player 1 have no choice
+player 8 win
+player : 1 vs 9
+player 1 have no choice
+player 9 win
+player : 1 vs 10
+player 1 have no choice
+player 10 win
+player : 2 vs 3
+player 2 have no choice
+player 3 win
+player : 2 vs 4
+player 2 have no choice
+player 4 win
+player : 2 vs 5
+player 2 have no choice
+player 5 win
+player : 2 vs 6
+player 2 have no choice
+player 6 win
+player : 2 vs 7
+player 2 have no choice
+player 7 win
+player : 2 vs 8
+player 2 have no choice
+player 8 win
+player : 2 vs 9
+player 2 have no choice
+player 9 win
+player : 2 vs 10
+player 2 have no choice
+player 10 win
+player : 3 vs 4
+player 3 have no choice
+player 4 win
+player : 3 vs 5
+player 3 have no choice
+player 5 win
+player : 3 vs 6
+player 3 have no choice
+player 6 win
+player : 3 vs 7
+player 3 have no choice
+player 7 win
+player : 3 vs 8
+player 3 have no choice
+player 8 win
+player : 3 vs 9
+player 3 have no choice
+player 9 win
+player : 3 vs 10
+player 3 have no choice
+player 10 win
+player : 4 vs 5
+player 4 have no choice
+player 5 win
+player : 4 vs 6
+player 4 have no choice
+player 6 win
+player : 4 vs 7
+player 4 have no choice
+player 7 win
+player : 4 vs 8
+player 4 have no choice
+player 8 win
+player : 4 vs 9
+player 4 have no choice
+player 9 win
+player : 4 vs 10
+player 4 have no choice
+player 10 win
+player : 5 vs 6
+player 5 have no choice
+player 6 win
+player : 5 vs 7
+player 5 have no choice
+player 7 win
+player : 5 vs 8
+player 5 have no choice
+player 8 win
+player : 5 vs 9
+player 5 have no choice
+player 9 win
+player : 5 vs 10
+player 5 have no choice
+player 10 win
+player : 6 vs 7
+player 6 have no choice
+player 7 win
+player : 6 vs 8
+player 6 have no choice
+player 8 win
+player : 6 vs 9
+player 6 have no choice
+player 9 win
+player : 6 vs 10
+player 6 have no choice
+player 10 win
+player : 7 vs 8
+player 7 have no choice
+player 8 win
+player : 7 vs 9
+player 7 have no choice
+player 9 win
+player : 7 vs 10
+player 7 have no choice
+player 10 win
+player : 8 vs 9
+player 8 have no choice
+player 9 win
+player : 8 vs 10
+player 8 have no choice
+player 10 win
+player : 9 vs 10
+player 9 have no choice
+player 10 win
+player 10 : 9
+player 9 : 8
+player 8 : 7
+player 7 : 6
+player 6 : 5
+player 5 : 4
+player 4 : 3
+player 3 : 2
+player 2 : 1
+player 1 : 0
