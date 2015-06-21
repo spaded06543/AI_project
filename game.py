@@ -39,7 +39,7 @@ class game():
             for i in range(2):
                 count += 1
                 ret = self.player[i].agent.get_action_light(self.player[i].weight, self.stones[1], self.stones[2], self.stones[0])
-                print("stone len :", len(self.stones[1]), len(self.stones[2]), len(self.stones[0]))
+                #print("stone len :", len(self.stones[1]), len(self.stones[2]), len(self.stones[0]))
                 if ret == -1:
                     flag = True
                     win_team = 0 if i == 1 else 1
@@ -55,8 +55,8 @@ class game():
             t1_stone = len(self.stones[1])
             t2_stone = len(self.stones[2])
             score = abs(t1_stone - t2_stone)
-            print("player/stone : ({0} / {1}) vs ({2} / {3})".format(self.player[0].id, t1_stone, self.player[1].id, t2_stone))
-            print("player/stone : ({0} / {1}) vs ({2} / {3})".format(self.player[0].id, t1_stone, self.player[1].id, t2_stone), file = sys.stderr)
+            print("player/stone : ({0} / {1}) vs ({2} / {3}) score : {4}".format(self.player[0].id, t1_stone, self.player[1].id, t2_stone, score))
+            print("player/stone : ({0} / {1}) vs ({2} / {3}) score : {4}".format(self.player[0].id, t1_stone, self.player[1].id, t2_stone, score), file = sys.stderr)
             if t1_stone > t2_stone :
                 print("player {0} win".format(self.player[0].id))
                 print("player {0} win".format(self.player[0].id), file = sys.stderr)
@@ -98,6 +98,8 @@ if __name__ == "__main__":
         for j in range(10):
             for k in range(j+1,10):
                 g = game(playerList[j], playerList[k])
+                g.run(play_turn)
+                g = game(playerList[k], playerList[j])
                 g.run(play_turn)
                 
         playerList = sorted(playerList, key = lambda x : -(x.win))

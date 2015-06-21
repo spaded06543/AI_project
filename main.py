@@ -71,10 +71,10 @@ if __name__ == "__main__" :
             msg1.move_to_pixel([0, height])
             msg2.move_to_pixel([0, height])
         pygame.display.update()
-        pygame.time.delay(30)
+        pygame.time.delay(40)
 
         if gamemode == 0 and player_turn == 2:
-            weight = [3, 13, 9, 14, 4]
+            weight = [1, 0, 0, 0, 0]
             # location, gap, king_gap, max_path_len, num_option
             for i in ai.get_action(weight, team1, team2, corpses):
                 pygame.time.delay(50)
