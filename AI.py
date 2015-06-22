@@ -1,6 +1,9 @@
 from Rules import *
 from Functions import *
 import copy
+import threading
+from queue import Queue
+
 def virtual_move(stone_small, act_list, t1, t2, cp):
     D = [1, -1, 7, -7]
     shift = ((act_list[0][0] - stone_small.cord[0]) % 8)*(act_list[0][1] - stone_small.cord[1])
@@ -39,6 +42,42 @@ def virtual_move(stone_small, act_list, t1, t2, cp):
     if stone.cord[1] + stone.team * 7 == 14:
         stone.king = True
 
+def minimax(team, weight, t1, t2, cp, depth, maximizingPlayer):
+    state = copy.deepcopy(t1 + t2 + cp)
+    if gameover_light(team, t1, t2, cp):
+        if maximizingPlayer:
+            return -10000
+        else:
+            return 10000
+    elif depth == 0 :
+        sum = weight[0] * heuristic(state, team) + weight[1] * stone_gap(t1, t2) + weight[2] * king_stone_gap(t1, t2)
+        su = get_successors(team, t1, t2, cp)
+        sum += weight[3] * max_path_len(su) + weight[4] * number_path(su)
+        return sum
+
+    if maximizingPlayer:
+        bestValue = -10000
+        for move_list in get_successors ( 3 - team, t1, t2, cp ) :
+            for move_path in move_list[1]:
+                t1_next = copy.deepcopy(t1)
+                t2_next = copy.deepcopy(t2)
+                cp_next = copy.deepcopy(cp)
+                virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
+                val = minimax ( 3 - team, weight, t1_next, t2_next, cp_next, depth - 1, False )
+                bestValue = max(bestValue, val)
+        return bestValue
+    else :
+        bestValue = 10000
+        for move_list in get_successors ( 3 - team, t1, t2, cp ) :
+            for move_path in move_list[1]:
+                t1_next = copy.deepcopy(t1)
+                t2_next = copy.deepcopy(t2)
+                cp_next = copy.deepcopy(cp)
+                virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
+                val = minimax ( 3 - team, weight, t1_next, t2_next, cp_next, depth - 1, True ) 
+                bestValue = min(bestValue, val)
+        return bestValue  
+    
 def alphabeta(team, weight, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
     state = copy.deepcopy(t1 + t2 + cp)
     if gameover_light(team, t1, t2, cp):
@@ -51,6 +90,7 @@ def alphabeta(team, weight, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
         su = get_successors(team, t1, t2, cp)
         sum += weight[3] * max_path_len(su) + weight[4] * number_path(su)
         return sum
+
     if maximizingPlayer:
         v = -10000
         for move_list in get_successors(3 - team, t1, t2, cp):
@@ -84,7 +124,7 @@ def alphabeta(team, weight, t1, t2, cp, depth, alpha, beta, maximizingPlayer):
         return v
 
 class AI():
-    def __init__(self, team, strategy = alphabeta):
+    def __init__(self, team, strategy = alphabeta ):
         self.strategy = strategy
         self.team = team
     
@@ -125,8 +165,8 @@ class AI():
                 yield
             #eating move
     
-            
-    def get_action(self, weight, team1, team2, corpses, depth = 2):
+   
+    def get_action(self, weight, team1, team2, corpses, depth = 4):
         team = None
         if self.team == 1:
             team = [x.info for x in team1]
@@ -145,7 +185,9 @@ class AI():
                 cp_next = copy.deepcopy(cp)
                 #print("move list {0}, {1}".format(move_list[0].cord, move_path))
                 virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
-                tmp_max = self.strategy(self.team, weight, t1_next, t2_next, cp_next, depth, alpha, beta, False)
+                #tmp_max = self.strategy(3 - self.team, weight, t1_next, t2_next, cp_next, depth, False)
+                # ^^^ this is minimax ^^^
+                tmp_max = self.strategy(3 - self.team, weight, t1_next, t2_next, cp_next, depth, alpha, beta, False)
                 if tmp_max > alpha :
                     alpha = tmp_max
                     best_act = [move_list[0], move_path]
@@ -154,7 +196,7 @@ class AI():
         act_stone = [x for x in stone_list[self.team] if x.info == best_act[0]][0]
         for i in self.move_stone(act_stone, best_act[1], team1, team2, corpses) :
             yield
-    def get_action_light(self, weight, t1, t2, cp, depth = 2):
+    def get_action_light(self, weight, t1, t2, cp, depth = 4):
         team = None
         if self.team == 1:
             team = t1
@@ -172,7 +214,7 @@ class AI():
                 cp_next = copy.deepcopy(cp)
                 #print("move list {0}, {1}".format(move_list[0].cord, move_path))
                 virtual_move(move_list[0], move_path, t1_next, t2_next, cp_next)
-                tmp_max = self.strategy(self.team, weight, t1_next, t2_next, cp_next, depth, alpha, beta, False)
+                tmp_max = self.strategy(3-self.team, weight, t1_next, t2_next, cp_next, depth, alpha, beta, False)
                 #print("act evaluation : {0}".format(tmp_max))
                 if tmp_max > alpha :
                     alpha = tmp_max
