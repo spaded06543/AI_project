@@ -37,7 +37,7 @@ def select_gamemode(window, button1, button2, screen, width, height, SCALE):
 
 def heuristic(all_stone, team):
     heuristic = 0
-    mapping = {0:7, 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:0}
+    mapping = [{7:7, 6:6, 5:5, 4:4, 3:3, 2:2, 1:1, 0:0}, {0:7, 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:0}]
     #print x[turn]
     for stone in all_stone:
         #print stone.team
@@ -45,7 +45,7 @@ def heuristic(all_stone, team):
             if stone.king == True:
                 heuristic += 8
             else:
-                heuristic += stone.cord[1]
+                heuristic += mapping[stone.team - 1][int(stone.cord[1])]
             #print "player",stone.team," ",stone.cord[1]
 
         elif stone.team == 0:
@@ -54,7 +54,7 @@ def heuristic(all_stone, team):
             if stone.king == True:
                 heuristic -= 8
             else:
-                heuristic -= mapping[stone.cord[1]]
+                heuristic -= mapping[stone.team - 1][int(stone.cord[1])]
             #print "player",stone.team," ",mapping[stone.cord[1]]
     return heuristic
     
